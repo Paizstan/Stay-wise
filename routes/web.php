@@ -32,4 +32,9 @@ Route::get('/habitaciones', function () {
     return Inertia::render('catalogos/Habitaciones');
 })->middleware(['auth', 'verified'])->name('habitaciones');
 
+Route::get('/catalogos', function () {
+    return Inertia::render('catalogos/Catalogos');
+})->middleware(['auth', 'verified'])->name('catalogos');
+
+
 require __DIR__.'/auth.php';
