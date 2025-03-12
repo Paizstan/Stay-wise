@@ -1,0 +1,301 @@
+<script setup>
+import { computed, onMounted, ref } from "vue";
+import { usePage, Link, router } from "@inertiajs/vue3";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Autoplay, Navigation } from "swiper/modules";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import Swal from "sweetalert2";
+
+const page = usePage();
+const user = page.props.auth.user;
+const isOpen = ref(false);
+
+const destacados = ref([
+    {
+        id: 1,
+        nombre: "Peppermint Tea",
+        descripcion: "A refreshing blend of peppermint leaves.",
+        precio: 10,
+        imagen: "https://www.sofitelbarucalablanca.com/wp-content/uploads/sites/19/2023/04/T3P_1211-HDR-1170x780.jpg",
+    },
+    {
+        id: 2,
+        nombre: "Rooibos Tea",
+        descripcion: "A rich and flavorful tea from South Africa.",
+        precio: 15,
+        imagen: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/530900719.jpg?k=93715490f016695d578526be6d55ae829e5d7b392290b1b0fd42fcdfa38c223f&o=&hp=1",
+    },
+    {
+        id: 3,
+        nombre: "Ginger Tea",
+        descripcion: "A spicy and invigorating tea with ginger root.",
+        precio: 12,
+        imagen: "https://images.trvl-media.com/lodging/66000000/65730000/65722800/65722721/c13b0293.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill",
+    },
+]);
+
+const habitacionesOfertas = ref([
+    {
+        id: 1,
+        nombre: "Suite Presidencial",
+        descripcion: "Lujo y confort con vista al mar",
+        precio: 299,
+        imagen: "https://www.sofitelbarucalablanca.com/wp-content/uploads/sites/19/2023/04/T3P_1211-HDR-1170x780.jpg",
+    },
+    {
+        id: 2,
+        nombre: "Suite Familiar",
+        descripcion: "Espaciosa y perfecta para familias",
+        precio: 199,
+        imagen: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/530900719.jpg?k=93715490f016695d578526be6d55ae829e5d7b392290b1b0fd42fcdfa38c223f&o=&hp=1",
+    },
+    {
+        id: 3,
+        nombre: "Habitación Deluxe",
+        descripcion: "Elegancia y comodidad",
+        precio: 150,
+        imagen: "https://images.trvl-media.com/lodging/66000000/65730000/65722800/65722721/c13b0293.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill",
+    },
+]);
+
+const eventos = ref([
+    {
+        id: 1,
+        titulo: "Bodas de Ensueño",
+        descripcion: "El lugar perfecto para tu día especial",
+        imagen: "https://image-tc.galaxy.tf/wijpeg-9gpyzt2id13gkm9tdslsajdiv/boda-kioro-3205x1746.jpg?width=1920",
+    },
+    {
+        id: 2,
+        titulo: "Eventos Corporativos",
+        descripcion: "Espacios equipados para reuniones exitosas",
+        imagen: "https://cache.marriott.com/content/dam/marriott-renditions/SCLWH/sclwh-wedding-5860-hor-feat.jpg?output-quality=70&interpolation=progressive-bilinear&downsize=1920px:*",
+    },
+]);
+
+const opiniones = ref([
+    {
+        id: 1,
+        nombre: "Carlos Méndez",
+        pais: "México",
+        comentario: "Excelente servicio y atención. ¡Repetiré sin duda!",
+    },
+    {
+        id: 2,
+        nombre: "María García",
+        pais: "España",
+        comentario:
+            "Una experiencia inolvidable. Las instalaciones son de primera.",
+    },
+    {
+        id: 3,
+        nombre: "Javier López",
+        pais: "Argentina",
+        comentario:
+            "El mejor lugar para relajarse y disfrutar de unas vacaciones.",
+    },
+]);
+</script>
+
+<template>
+    <div class="container mx-auto p-6 bg-[#F5E3C3]">
+        <nav
+            class="fixed top-0 left-0 w-full bg-[#7D5A50] text-white shadow-md z-50 p-4"
+        >
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="flex items-center space-x-6">
+                    <h1 class="text-xl font-bold">Staywise</h1>
+                    <div class="hidden lg:flex space-x-4">
+                       
+                        <button class="text-white text-right hover:text-[#E1C699]">
+                            Habitaciones
+                        </button>
+                        <button class="text-white text-right hover:text-[#E1C699]">
+                            Servicios
+                        </button>
+                        <button
+                        @click="router.visit('/login')"
+                        class="text-white text-right hover:text-[#E1C699]"
+                    >
+                        Iniciar Sesión
+                    </button>
+                    <button
+                        @click="router.visit('/register')"
+                        class="bg-[#5E3023]  text-white px-4 py-2 rounded hover:bg-[#4A261C]"
+                    >
+                        Registrarse
+                    </button>
+                    </div>
+                </div>
+
+                <button @click="isOpen = !isOpen" class="lg:hidden">
+                    <FontAwesomeIcon :icon="faBars" class="w-6 h-6" />
+                </button>
+            </div>
+
+            <!-- Menú móvil -->
+            <div v-if="isOpen" class="lg:hidden mt-4">
+                <div class="flex flex-col space-y-2">
+                    <button class="text-white hover:text-[#E1C699]">
+                        Inicio
+                    </button>
+                    <button class="text-white hover:text-[#E1C699]">
+                        Habitaciones
+                    </button>
+                    <button class="text-white hover:text-[#E1C699]">
+                        Servicios
+                    </button>
+                    <button
+                        @click="router.visit('/login')"
+                        class="text-white hover:text-[#E1C699]"
+                    >
+                        Iniciar Sesión
+                    </button>
+                    <button
+                        @click="router.visit('/register')"
+                        class="text-white hover:text-[#E1C699]"
+                    >
+                        Registrarse
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="pt-20">
+            <Swiper
+                :modules="[Navigation, Autoplay]"
+                navigation
+                :autoplay="{ delay: 3000 }"
+                loop
+                class="my-6"
+            >
+                <SwiperSlide
+                    v-for="destacado in destacados"
+                    :key="destacado.id"
+                    class="p-4"
+                >
+                    <div
+                        class="bg-[#5E3023] text-white rounded-lg shadow-lg overflow-hidden"
+                    >
+                        <img
+                            :src="destacado.imagen"
+                            class="w-full h-56 object-cover"
+                        />
+                        <div class="p-4">
+                            <h2 class="text-xl font-semibold">
+                                {{ destacado.nombre }}
+                            </h2>
+                            <p class="text-[#E1C699] text-lg font-bold">
+                                ${{ destacado.precio }}
+                            </p>
+                            <p>{{ destacado.descripcion }}</p>
+                        </div>
+                    </div>
+                </SwiperSlide>
+            </Swiper>
+
+            <!-- Ofertas y Paquetes -->
+            <div class="my-12">
+                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+                    Ofertas y Paquetes
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        v-for="habitacion in habitacionesOfertas"
+                        :key="habitacion.id"
+                        class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+                    >
+                        <img
+                            :src="habitacion.imagen"
+                            class="w-full h-48 object-cover"
+                        />
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-[#5E3023]">
+                                {{ habitacion.nombre }}
+                            </h3>
+                            <p class="text-[#7D5A50]">
+                                {{ habitacion.descripcion }}
+                            </p>
+                            <p class="text-2xl font-bold text-[#5E3023] mt-2">
+                                ${{ habitacion.precio }}/noche
+                            </p>
+                            <button
+                                class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
+                            >
+                                Reservar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eventos y Celebraciones -->
+            <div class="my-12">
+                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+                    Eventos & Celebraciones
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div
+                        v-for="evento in eventos"
+                        :key="evento.id"
+                        class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+                    >
+                        <img
+                            :src="evento.imagen"
+                            class="w-full h-64 object-cover"
+                        />
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-[#5E3023]">
+                                {{ evento.titulo }}
+                            </h3>
+                            <p class="text-[#7D5A50]">
+                                {{ evento.descripcion }}
+                            </p>
+                            <button
+                                class="bg-[#7D5A50] text-white px-6 py-2 rounded mt-4 hover:bg-[#5E3023]"
+                            >
+                                Más Información
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opiniones -->
+            <div class="my-12">
+                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+                    Opiniones de Nuestros Huéspedes
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div
+                        v-for="opinion in opiniones"
+                        :key="opinion.id"
+                        class="bg-white p-6 rounded-lg shadow-lg"
+                    >
+                        <p class="text-[#7D5A50] italic mb-4">
+                            "{{ opinion.comentario }}"
+                        </p>
+                        <div class="flex items-center">
+                            <div>
+                                <p class="font-semibold text-[#5E3023]">
+                                    {{ opinion.nombre }}
+                                </p>
+                                <p class="text-sm text-[#7D5A50]">
+                                    {{ opinion.pais }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="bg-[#7D5A50] text-white p-6 mt-6 text-center">
+            <p>© 2023 Staywise. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+</template>
