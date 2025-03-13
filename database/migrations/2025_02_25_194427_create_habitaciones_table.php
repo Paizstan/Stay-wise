@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('precio',10,2);
             $table->timestamps();
         });
-    }
+    } 
 
     /**
      * Reverse the migrations.
