@@ -12,6 +12,7 @@ import {
     faSignInAlt,
     faUserPlus,
     faSignOutAlt,
+    faShoppingCart,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -19,6 +20,8 @@ import Swal from "sweetalert2";
 const page = usePage();
 const user = page.props.auth.user;
 const isOpen = ref(false);
+const carritoVisible = ref(false);
+const reserva = ref(null);
 
 const destacados = ref([
     {
@@ -44,29 +47,7 @@ const destacados = ref([
     },
 ]);
 
-const habitacionesOfertas = ref([
-    {
-        id: 1,
-        nombre: "Suite Presidencial",
-        descripcion: "Lujo y confort con vista al mar",
-        precio: 299,
-        imagen: "https://www.sofitelbarucalablanca.com/wp-content/uploads/sites/19/2023/04/T3P_1211-HDR-1170x780.jpg",
-    },
-    {
-        id: 2,
-        nombre: "Suite Familiar",
-        descripcion: "Espaciosa y perfecta para familias",
-        precio: 199,
-        imagen: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/530900719.jpg?k=93715490f016695d578526be6d55ae829e5d7b392290b1b0fd42fcdfa38c223f&o=&hp=1",
-    },
-    {
-        id: 3,
-        nombre: "Habitación Deluxe",
-        descripcion: "Elegancia y comodidad",
-        precio: 150,
-        imagen: "https://images.trvl-media.com/lodging/66000000/65730000/65722800/65722721/c13b0293.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill",
-    },
-]);
+const habitacionesOfertas = ref([]);
 
 const eventos = ref([
     {
@@ -109,6 +90,40 @@ const opiniones = ref([
 const handleLogout = () => {
     router.post(route("logout"));
 };
+
+const reservarHabitacion = (habitacion) => {
+    if (!user) {
+        Swal.fire("Debes estar autenticado para realizar una reserva.");
+        return;
+    }
+    reserva.value = habitacion;
+    carritoVisible.value = true;
+};
+
+const confirmarReserva = () => {
+    Swal.fire({
+        title: "Reserva Confirmada",
+        text: `Has reservado la ${reserva.value.nombre}.`,
+        icon: "success",
+    });
+    reserva.value = null;
+    carritoVisible.value = false;
+};
+
+const fetchHabitaciones = async () => {
+    try {
+        const response = await axios.get(
+            "http://localhost:8000/api/habitaciones"
+        );
+        habitacionesOfertas.value = response.data;
+    } catch (err) {
+        console.error("Error al obtener las habitaciones", err);
+    }
+};
+
+onMounted(() => {
+    fetchHabitaciones();
+});
 </script>
 
 <template>
@@ -166,6 +181,16 @@ const handleLogout = () => {
                             />
                             <span>Cerrar Sesión</span>
                         </button>
+                        <button
+                            @click="carritoVisible = !carritoVisible"
+                            class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faShoppingCart"
+                                class="w-5 h-5"
+                            />
+                            <span>Carrito</span>
+                        </button>
                     </template>
                 </div>
 
@@ -221,6 +246,16 @@ const handleLogout = () => {
                                 class="w-5 h-5"
                             />
                             <span>Cerrar Sesión</span>
+                        </button>
+                        <button
+                            @click="carritoVisible = !carritoVisible"
+                            class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faShoppingCart"
+                                class="w-5 h-5"
+                            />
+                            <span>Carrito</span>
                         </button>
                     </template>
                 </div>
@@ -286,12 +321,85 @@ const handleLogout = () => {
                                 ${{ habitacion.precio }}/noche
                             </p>
                             <button
+                                @click="reservarHabitacion(habitacion)"
                                 class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
                             >
                                 Reservar Ahora
                             </button>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Habitaciones -->
+            <div class="my-12">
+                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+                    Habitaciones
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        v-for="habitacion in habitacionesOfertas"
+                        :key="habitacion.id"
+                        class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+                    >
+                        <img
+                            :src="habitacion.imagen"
+                            class="w-full h-48 object-cover"
+                        />
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-[#5E3023]">
+                                {{ habitacion.nombre }}
+                            </h3>
+                            <p class="text-[#7D5A50]">
+                                {{ habitacion.descripcion }}
+                            </p>
+                            <p class="text-2xl font-bold text-[#5E3023] mt-2">
+                                ${{ habitacion.precio }}/noche
+                            </p>
+                            <button
+                                @click="reservarHabitacion(habitacion)"
+                                class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
+                            >
+                                Reservar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carrito de Reservas -->
+            <div
+                v-if="carritoVisible"
+                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+            >
+                <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+                    <h2 class="text-2xl font-bold mb-4">Reserva</h2>
+                    <div v-if="reserva">
+                        <img
+                            :src="reserva.imagen"
+                            class="w-full h-48 object-cover mb-4"
+                        />
+                        <p><strong>Nombre:</strong> {{ reserva.nombre }}</p>
+                        <p>
+                            <strong>Descripción:</strong>
+                            {{ reserva.descripcion }}
+                        </p>
+                        <p>
+                            <strong>Precio:</strong> ${{ reserva.precio }}/noche
+                        </p>
+                        <button
+                            @click="confirmarReserva"
+                            class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
+                        >
+                            Confirmar Reserva
+                        </button>
+                    </div>
+                    <button
+                        @click="carritoVisible = false"
+                        class="w-full bg-red-500 text-white py-2 rounded mt-4 hover:bg-red-700"
+                    >
+                        Cancelar
+                    </button>
                 </div>
             </div>
 
