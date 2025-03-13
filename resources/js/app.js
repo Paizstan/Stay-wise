@@ -24,9 +24,9 @@ import Textarea from 'primevue/textarea';
 import InputNumber from 'primevue/inputnumber';
 
 // Import PrimeVue CSS
-import 'primevue/resources/themes/saga-blue/theme.css'; // or any other theme
+/* import 'primevue/resources/themes/saga-blue/theme.css'; // or any other theme
 import 'primevue/resources/primevue.min.css';
-import 'primeicons/primeicons.css';
+import 'primeicons/primeicons.css'; */
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
