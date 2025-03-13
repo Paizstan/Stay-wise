@@ -241,7 +241,7 @@
                                 <small v-if="submitted && !habitacion.capacidad" class="text-red-500">Seleccione la capacidad de la Habitacion</small>
                             </div>
                             <div>
-                                <label for="descripcion" class="block font-bold mb-3">Descripcion</label>
+                                <label for="descripcion" class="block font-bold mb-3">Descripcion de la Habitacion</label>
                                 <Textarea id="descripcion" v-model="habitacion.descripcion" required="true" rows="2" cols="20" fluid />
                                 <small class="p-error text-red-500" v-if="submitted && !habitacion.descripcion">Descripcion es requerida.</small>
                             </div>
