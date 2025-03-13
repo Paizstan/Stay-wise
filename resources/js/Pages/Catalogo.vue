@@ -9,9 +9,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
     faBars,
     faBed,
-    //faConciergebell,
     faSignInAlt,
     faUserPlus,
+    faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -105,6 +105,10 @@ const opiniones = ref([
             "El mejor lugar para relajarse y disfrutar de unas vacaciones.",
     },
 ]);
+
+const handleLogout = () => {
+    router.post(route("logout"));
+};
 </script>
 
 <template>
@@ -124,30 +128,45 @@ const opiniones = ref([
                         <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
                         <span>Habitaciones</span>
                     </button>
-                    <!--Este boton sirve pero el icono no la pagina desaparece-->
-                    <!-- <button
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon
-                            :icon="faConciergebell"
-                            class="w-5 h-5"
-                        />
-                        <span>Servicios</span>
-                    </button> -->
-                    <button
-                        @click="router.visit('/login')"
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon :icon="faSignInAlt" class="w-5 h-5" />
-                        <span>Iniciar Sesión</span>
-                    </button>
-                    <button
-                        @click="router.visit('/register')"
-                        class="bg-[#5E3023] text-white px-4 py-2 rounded hover:bg-[#4A261C] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon :icon="faUserPlus" class="w-5 h-5" />
-                        <span>Registrarse</span>
-                    </button>
+
+                    <!-- Botones para usuario no autenticado -->
+                    <template v-if="!user">
+                        <button
+                            @click="router.visit(route('login'))"
+                            class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faSignInAlt"
+                                class="w-5 h-5"
+                            />
+                            <span>Iniciar Sesión</span>
+                        </button>
+                        <button
+                            @click="router.visit(route('register'))"
+                            class="bg-[#5E3023] text-white px-4 py-2 rounded hover:bg-[#4A261C] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faUserPlus"
+                                class="w-5 h-5"
+                            />
+                            <span>Registrarse</span>
+                        </button>
+                    </template>
+
+                    <!-- Botones para usuario autenticado -->
+                    <template v-else>
+                        <span class="text-white">{{ user.name }}</span>
+                        <button
+                            @click="handleLogout"
+                            class="bg-[#5E3023] text-white px-4 py-2 rounded hover:bg-[#4A261C] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faSignOutAlt"
+                                class="w-5 h-5"
+                            />
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    </template>
                 </div>
 
                 <!-- Botón menú móvil -->
@@ -165,29 +184,45 @@ const opiniones = ref([
                         <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
                         <span>Habitaciones</span>
                     </button>
-                    <button
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon
-                            :icon="faConciergebell"
-                            class="w-5 h-5"
-                        />
-                        <span>Servicios</span>
-                    </button>
-                    <button
-                        @click="router.visit('/login')"
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon :icon="faSignInAlt" class="w-5 h-5" />
-                        <span>Iniciar Sesión</span>
-                    </button>
-                    <button
-                        @click="router.visit('/register')"
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon :icon="faUserPlus" class="w-5 h-5" />
-                        <span>Registrarse</span>
-                    </button>
+
+                    <!-- Botones móviles para usuario no autenticado -->
+                    <template v-if="!user">
+                        <button
+                            @click="router.visit(route('login'))"
+                            class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faSignInAlt"
+                                class="w-5 h-5"
+                            />
+                            <span>Iniciar Sesión</span>
+                        </button>
+                        <button
+                            @click="router.visit(route('register'))"
+                            class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faUserPlus"
+                                class="w-5 h-5"
+                            />
+                            <span>Registrarse</span>
+                        </button>
+                    </template>
+
+                    <!-- Botones móviles para usuario autenticado -->
+                    <template v-else>
+                        <span class="text-white">{{ user.name }}</span>
+                        <button
+                            @click="handleLogout"
+                            class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                        >
+                            <FontAwesomeIcon
+                                :icon="faSignOutAlt"
+                                class="w-5 h-5"
+                            />
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    </template>
                 </div>
             </div>
         </nav>
