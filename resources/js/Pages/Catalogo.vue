@@ -134,20 +134,21 @@ const opiniones = ref([
                         />
                         <span>Servicios</span>
                     </button> -->
-                    <button
-                        @click="router.visit('/login')"
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon :icon="faSignInAlt" class="w-5 h-5" />
-                        <span>Iniciar Sesión</span>
-                    </button>
-                    <button
-                        @click="router.visit('/register')"
-                        class="bg-[#5E3023] text-white px-4 py-2 rounded hover:bg-[#4A261C] flex items-center space-x-2"
-                    >
-                        <FontAwesomeIcon :icon="faUserPlus" class="w-5 h-5" />
-                        <span>Registrarse</span>
-                    </button>
+                                <Link
+                    :href="route('login')"
+                    class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                >
+                    <FontAwesomeIcon :icon="faSignInAlt" class="w-5 h-5" />
+                    <span>Iniciar Sesión</span>
+                </Link>
+                
+                <Link
+                    :href="route('register')"
+                    class="bg-[#5E3023] text-white px-4 py-2 rounded hover:bg-[#4A261C] flex items-center space-x-2"
+                >
+                    <FontAwesomeIcon :icon="faUserPlus" class="w-5 h-5" />
+                    <span>Registrarse</span>
+                </Link>
                 </div>
 
                 <!-- Botón menú móvil -->
