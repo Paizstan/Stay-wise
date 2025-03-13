@@ -111,7 +111,7 @@ const opiniones = ref([
                     <h1 class="text-xl font-bold">Staywise</h1>
                     <div class="hidden lg:flex space-x-4">
                        
-                        <button class="text-white text-right hover:text-[#E1C699]">
+                        <button class="text-white text-left  hover:text-[#E1C699]">
                             Habitaciones
                         </button>
                         <button class="text-white text-right hover:text-[#E1C699]">
