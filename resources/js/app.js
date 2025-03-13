@@ -8,7 +8,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 
-// Import PrimeVue components esto talves
+// Import PrimeVue components
 import Toast from 'primevue/toast';
 import Button from 'primevue/button';
 import Toolbar from 'primevue/toolbar';
@@ -19,7 +19,7 @@ import InputText from 'primevue/inputtext';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import FileUpload from 'primevue/fileupload';
-import Select from 'primevue/select';
+//import Select from 'primevue/select';
 import Textarea from 'primevue/textarea';
 import InputNumber from 'primevue/inputnumber';
 
@@ -55,7 +55,7 @@ createInertiaApp({
         app.component('IconField', IconField);
         app.component('InputIcon', InputIcon);
         app.component('FileUpload', FileUpload);
-        app.component('Select', Select);
+        //app.component('Select', Select);
         app.component('Textarea', Textarea);
         app.component('InputNumber', InputNumber);
 

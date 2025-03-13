@@ -135,13 +135,13 @@ const logout = async () => {
                         <li
                             class="px-6 py-3 hover:bg-[#D3BBA6] flex items-center"
                         >
-                            <a href="#" class="flex items-center w-full">
+                            <Link :href="route('gestion')" class="flex items-center w-full">
                                 <FontAwesomeIcon
                                     :icon="faClipboardList"
                                     class="mr-3"
                                 />
-                                Sistema Gestión
-                            </a>
+                                Sistema de Gestión
+                            </Link>
                         </li>
                         <li
                             class="px-6 py-3 hover:bg-[#D3BBA6] flex items-center"

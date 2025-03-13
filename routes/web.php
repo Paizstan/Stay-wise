@@ -36,5 +36,9 @@ Route::get('/catalogos', function () {
     return Inertia::render('catalogos/Catalogos');
 })->middleware(['auth', 'verified'])->name('catalogos');
 
+Route::get('/gestion', function () {
+    return Inertia::render('catalogos/Gestion');
+})->middleware(['auth', 'verified'])->name('gestion');
+
 
 require __DIR__.'/auth.php';
