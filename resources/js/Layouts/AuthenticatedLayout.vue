@@ -140,7 +140,7 @@ const logout = async () => {
                                     :icon="faClipboardList"
                                     class="mr-3"
                                 />
-                                Sistema Gestión
+                                Sistema de Gestión
                             </Link>
                         </li>
                         <li
