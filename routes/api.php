@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\HabitacionController;
+use App\Http\Controllers\ReporteController;
+
 
 use App\Http\Controllers\ReservaController;
 use Illuminate\Http\Request;
@@ -11,4 +13,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 Route::apiResource('habitaciones',HabitacionController::class);
 Route::apiResource('reservas',ReservaController::class);
+Route::get('/reporte/reservas-mes', [ReporteController::class, 'reservasPorMes']);
+
+
+
 

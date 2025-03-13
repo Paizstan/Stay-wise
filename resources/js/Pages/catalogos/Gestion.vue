@@ -1,63 +1,62 @@
-<template>
-    <div class="container mx-auto p-4">
-      <h2 class="text-2xl font-bold text-center mb-4">Porcentaje de Reservas por Mes</h2>
-      <div class="flex justify-center">
-        <canvas id="reservasChart" class="w-full max-w-4xl"></canvas>
-      </div>
-    </div>
-  </template>
-  
-  <script>
-  import { ref, onMounted } from 'vue';
-  import Chart from 'chart.js/auto';
-  // import 'primeicons/primeicons.css';
-  // import 'primeicons/resource.css';
-  import 'tailwindcss/tailwind.css';
-  
-  export default {
-    name: 'ReservasPorMes',
-    setup() {
-      const reservasChart = ref(null);
-  
-      onMounted(() => {
-        const ctx = document.getElementById('reservasChart').getContext('2d');
-        reservasChart.value = new Chart(ctx, {
-          type: 'bar',
-          data: {
+<script setup>
+import { ref, onMounted } from 'vue';
+import { Head } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Chart from 'chart.js/auto';
+
+const reservasChart = ref(null);
+
+onMounted(async () => {
+    const response = await fetch('/api/reporte/reservas-mes');
+    const data = await response.json();
+
+    const ctx = document.getElementById('reservasChart').getContext('2d');
+    reservasChart.value = new Chart(ctx, {
+        type: 'bar',
+        data: {
             labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
             datasets: [{
-              label: 'Porcentaje de Reservas',
-              data: [12, 19, 3, 5, 2, 3, 10, 15, 8, 6, 7, 9], // Datos simulados
-              backgroundColor: 'rgba(75, 192, 192, 0.2)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1
+                label: 'Reservas por Mes',
+                data: data, // Datos de la API
+                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
             }]
-          },
-          options: {
+        },
+        options: {
+            responsive: true,
             scales: {
-              y: {
-                beginAtZero: true
-              }
+                y: {
+                    beginAtZero: true
+                }
             }
-          }
-        });
-      });
-  
-      return {
-        reservasChart
-      };
-    }
-  };
-  </script>
-  
-  <style scoped>
-  h2 {
+        }
+    });
+});
+</script>
+
+<template>
+    <Head title="Gestión de Reservas" />
+
+    <AuthenticatedLayout> <!-- Si ya lo usas, no es necesario agregarlo otra vez -->
+        <template #header>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                Gestión de Reservas
+            </h2>
+        </template>
+
+        <div class="container mx-auto p-4">
+            <h2 class="text-2xl font-bold text-center mb-6 mt-6">Porcentaje de Reservas por Mes</h2>
+            <div class="flex justify-center">
+                <canvas id="reservasChart" class="w-full max-w-4xl"></canvas>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>
+
+<style scoped>
+h2 {
     text-align: center;
     margin-bottom: 20px;
-  }
-  
-  canvas {
-    display: block;
-    margin: 0 auto;
-  }
-  </style>
+}
+</style>
