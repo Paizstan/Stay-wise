@@ -47,7 +47,7 @@ const destacados = ref([
     },
 ]);
 
-const habitacionesOfertas = ref([]);
+const habitaciones = ref([]);
 
 const eventos = ref([
     {
@@ -110,14 +110,15 @@ const confirmarReserva = () => {
     carritoVisible.value = false;
 };
 
+const urlBase = "http://localhost:8000/api/";
+
 const fetchHabitaciones = async () => {
     try {
-        const response = await axios.get(
-            "http://localhost:8000/api/habitaciones"
-        );
-        habitacionesOfertas.value = response.data;
+        const response = await axios.get(`${urlBase}habitaciones`);
+        console.log("Datos de habitaciones:", response.data); // Para verificar la estructura
+        habitaciones.value = response.data;
     } catch (err) {
-        console.error("Error al obtener las habitaciones", err);
+        console.error("Error al obtener las habitaciones:", err);
     }
 };
 
@@ -338,14 +339,30 @@ onMounted(() => {
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div
-                        v-for="habitacion in habitacionesOfertas"
+                        v-for="habitacion in habitaciones"
                         :key="habitacion.id"
                         class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
                     >
-                        <img
-                            :src="habitacion.imagen"
-                            class="w-full h-48 object-cover"
-                        />
+                        <Swiper :modules="[Navigation]" navigation class="h-48">
+                            <SwiperSlide
+                                v-for="imagen in habitacion.imagenes"
+                                :key="imagen.id"
+                            >
+                                <img
+                                    :src="`/images/habitacions/${imagen.nombre}`"
+                                    :alt="habitacion.nombre"
+                                    class="w-full h-48 object-cover"
+                                />
+                            </SwiperSlide>
+                            <!-- Imagen por defecto si no hay imágenes -->
+                            <SwiperSlide v-if="!habitacion.imagenes?.length">
+                                <img
+                                    src="/images/default-room.jpg"
+                                    :alt="habitacion.nombre"
+                                    class="w-full h-48 object-cover"
+                                />
+                            </SwiperSlide>
+                        </Swiper>
                         <div class="p-4">
                             <h3 class="text-xl font-semibold text-[#5E3023]">
                                 {{ habitacion.nombre }}

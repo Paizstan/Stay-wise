@@ -16,7 +16,7 @@ class HabitacionController extends Controller
     public function index()
     {
         try {
-            return response()->json(Habitacion::all());
+            return response()->json(Habitacion::with( 'imagenes')->get());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
