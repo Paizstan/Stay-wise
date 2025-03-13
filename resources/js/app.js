@@ -19,7 +19,7 @@ import InputText from 'primevue/inputtext';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import FileUpload from 'primevue/fileupload';
-import Select from 'primevue/select';
+//import Select from 'primevue/select';
 import Textarea from 'primevue/textarea';
 import InputNumber from 'primevue/inputnumber';
 
@@ -55,7 +55,7 @@ createInertiaApp({
         app.component('IconField', IconField);
         app.component('InputIcon', InputIcon);
         app.component('FileUpload', FileUpload);
-        app.component('Select', Select);
+//app.component('Select', Select);
         app.component('Textarea', Textarea);
         app.component('InputNumber', InputNumber);
 

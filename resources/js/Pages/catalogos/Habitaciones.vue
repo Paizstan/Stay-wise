@@ -3,7 +3,6 @@
     import { Head } from '@inertiajs/vue3';
 
     import { ref, onMounted, computed } from 'vue';
-    import { FilterMatchMode } from '@primevue/core/api';
     import { useToast } from 'primevue/usetoast';
     import axios from 'axios';
 
@@ -24,7 +23,7 @@
     const imagenes = ref([]);//arreglo de imagenes para las habitaciones
     const fileUploadRef = ref(null);
     const filters = ref({
-        'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+        'global': {value: null},
     });
     const submitted = ref(false);
     const url = 'http://127.0.0.1:8000/api/habitaciones';
