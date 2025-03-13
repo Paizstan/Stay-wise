@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
     faBars,
     faBed,
-    faConciergebell,
+    //faConciergebell,
     faSignInAlt,
     faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
@@ -124,7 +124,8 @@ const opiniones = ref([
                         <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
                         <span>Habitaciones</span>
                     </button>
-                    <button
+                    <!--Este boton sirve pero el icono no la pagina desaparece-->
+                    <!-- <button
                         class="text-white hover:text-[#E1C699] flex items-center space-x-2"
                     >
                         <FontAwesomeIcon
@@ -132,7 +133,7 @@ const opiniones = ref([
                             class="w-5 h-5"
                         />
                         <span>Servicios</span>
-                    </button>
+                    </button> -->
                     <button
                         @click="router.visit('/login')"
                         class="text-white hover:text-[#E1C699] flex items-center space-x-2"
