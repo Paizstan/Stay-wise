@@ -6,7 +6,13 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Autoplay, Navigation } from "swiper/modules";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import {
+    faBars,
+    faBed,
+    faConciergebell,
+    faSignInAlt,
+    faUserPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
 
@@ -107,31 +113,43 @@ const opiniones = ref([
             class="fixed top-0 left-0 w-full bg-[#7D5A50] text-white shadow-md z-50 p-4"
         >
             <div class="container mx-auto flex justify-between items-center">
-                <div class="flex items-center space-x-6">
-                    <h1 class="text-xl font-bold">Staywise</h1>
-                    <div class="hidden lg:flex space-x-4">
-                       
-                        <button class="text-white text-left  hover:text-[#E1C699]">
-                            Habitaciones
-                        </button>
-                        <button class="text-white text-right hover:text-[#E1C699]">
-                            Servicios
-                        </button>
-                        <button
-                        @click="router.visit('/login')"
-                        class="text-white text-right hover:text-[#E1C699]"
+                <!-- Logo a la izquierda -->
+                <h1 class="text-xl font-bold">Staywise</h1>
+
+                <!-- Botones a la derecha -->
+                <div class="hidden lg:flex items-center space-x-4">
+                    <button
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
                     >
-                        Iniciar Sesión
+                        <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
+                        <span>Habitaciones</span>
+                    </button>
+                    <button
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                    >
+                        <FontAwesomeIcon
+                            :icon="faConciergebell"
+                            class="w-5 h-5"
+                        />
+                        <span>Servicios</span>
+                    </button>
+                    <button
+                        @click="router.visit('/login')"
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                    >
+                        <FontAwesomeIcon :icon="faSignInAlt" class="w-5 h-5" />
+                        <span>Iniciar Sesión</span>
                     </button>
                     <button
                         @click="router.visit('/register')"
-                        class="bg-[#5E3023]  text-white px-4 py-2 rounded hover:bg-[#4A261C]"
+                        class="bg-[#5E3023] text-white px-4 py-2 rounded hover:bg-[#4A261C] flex items-center space-x-2"
                     >
-                        Registrarse
+                        <FontAwesomeIcon :icon="faUserPlus" class="w-5 h-5" />
+                        <span>Registrarse</span>
                     </button>
-                    </div>
                 </div>
 
+                <!-- Botón menú móvil -->
                 <button @click="isOpen = !isOpen" class="lg:hidden">
                     <FontAwesomeIcon :icon="faBars" class="w-6 h-6" />
                 </button>
@@ -140,26 +158,34 @@ const opiniones = ref([
             <!-- Menú móvil -->
             <div v-if="isOpen" class="lg:hidden mt-4">
                 <div class="flex flex-col space-y-2">
-                    <button class="text-white hover:text-[#E1C699]">
-                        Inicio
+                    <button
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                    >
+                        <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
+                        <span>Habitaciones</span>
                     </button>
-                    <button class="text-white hover:text-[#E1C699]">
-                        Habitaciones
-                    </button>
-                    <button class="text-white hover:text-[#E1C699]">
-                        Servicios
+                    <button
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
+                    >
+                        <FontAwesomeIcon
+                            :icon="faConciergebell"
+                            class="w-5 h-5"
+                        />
+                        <span>Servicios</span>
                     </button>
                     <button
                         @click="router.visit('/login')"
-                        class="text-white hover:text-[#E1C699]"
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
                     >
-                        Iniciar Sesión
+                        <FontAwesomeIcon :icon="faSignInAlt" class="w-5 h-5" />
+                        <span>Iniciar Sesión</span>
                     </button>
                     <button
                         @click="router.visit('/register')"
-                        class="text-white hover:text-[#E1C699]"
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
                     >
-                        Registrarse
+                        <FontAwesomeIcon :icon="faUserPlus" class="w-5 h-5" />
+                        <span>Registrarse</span>
                     </button>
                 </div>
             </div>
