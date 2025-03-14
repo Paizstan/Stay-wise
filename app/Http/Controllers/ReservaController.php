@@ -122,4 +122,10 @@ class ReservaController extends Controller
             return response()->json(['error' => 'No se pudo eliminar la reserva: ' . $e->getMessage()], 500);
         }
     }
+
+    public function getDatos()  
+    {  
+        $reservas = Reserva::with('user')->get(); // Ensure the relationship is 'user'
+        return response()->json($reservas);  
+    }
 }

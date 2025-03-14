@@ -146,13 +146,13 @@ const logout = async () => {
                         <li
                             class="px-6 py-3 hover:bg-[#D3BBA6] flex items-center"
                         >
-                            <a href="#" class="flex items-center w-full">
+                            <Link :href="route('reporte.vista')" class="flex items-center w-full">
                                 <FontAwesomeIcon
                                     :icon="faFileAlt"
                                     class="mr-3"
                                 />
                                 Reportes
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </nav>

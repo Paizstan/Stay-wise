@@ -6,7 +6,7 @@
     import { useToast } from 'primevue/usetoast';
     import axios from 'axios';
 
-    //import { ProductService } from '@/service/ProductService';
+
 
     onMounted(() => {
         fetchHabitaciones();
