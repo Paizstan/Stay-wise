@@ -60,6 +60,7 @@ createInertiaApp({
         app.component('InputNumber', InputNumber);
 
         app.mount(el);
+        return app;
     },
     progress: {
         color: '#4B5563',

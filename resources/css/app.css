@@ -3,15 +3,15 @@
 @tailwind utilities;
  */
 
- @layer tailwind-base, primevue, taiwind-utilities;
+@layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
     @tailwind base;
 }
 
-@layer primevue {
+@layer primevue {    
+    @import 'primevue/resources/primevue.min.css'; 
     @import 'primeicons/primeicons.css';
-    @import 'primeicons/resource.css';
 }
 
 @layer tailwind-utilities {
