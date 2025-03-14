@@ -47,8 +47,8 @@ class ReporteController extends Controller
      {
          $reservas = Reserva::with(['usuario', 'detalles'])->get();
  
-         $pdf = \PDF::loadView('pdf.reporte', compact('reservas'));
-         return $pdf->download('reporte_hotel.pdf');
+         //$pdf = \PDF::loadView('pdf.reporte', compact('reservas'));
+        // return $pdf->download('reporte_hotel.pdf');
      }
      
 }
