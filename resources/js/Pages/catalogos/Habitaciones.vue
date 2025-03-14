@@ -6,20 +6,8 @@ import { useToast } from "primevue/usetoast";
 import axios from "axios";
 //import Dropdown from "primevue/dropdown";
 
-<<<<<<< HEAD
-    import { ref, onMounted, computed } from 'vue';
-    import { useToast } from 'primevue/usetoast';
-    import axios from 'axios';
-    
-
-    // Import PrimeVue CSS
-    //import 'primevue/resources/themes/saga-blue/theme.css'; // theme
-    //import 'primevue/resources/primevue.min.css'; // core css
-    import 'primeicons/primeicons.css'; // icons 
-=======
 
 //import { ProductService } from '@/service/ProductService';
->>>>>>> 4ba9aac52c7ed5064d2202283960f6a64b6a35f7
 
 onMounted(() => {
     fetchHabitaciones();
