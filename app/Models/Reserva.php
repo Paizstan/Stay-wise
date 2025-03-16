@@ -9,10 +9,16 @@ use App\Models\User; // Ensure User model is imported
 class Reserva extends Model
 {
     use HasFactory;
-    protected $fillable = ['nombre', 'user_id']; // Ensure user_id is fillable
 
-    public function user()  
-    {  
-        return $this->belongsTo(User::class, 'user_id'); // Cambia hasMany por belongsTo  
+    protected $table = 'reservas';
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    public function detalles()
+    {
+        return $this->hasMany(DetalleReserva::class, 'reserva_id');
     }
 }
