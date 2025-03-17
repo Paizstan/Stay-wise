@@ -115,14 +115,44 @@ const reservarHabitacion = (habitacion) => {
     carritoVisible.value = true;
 };
 
-const confirmarReserva = () => {
-    Swal.fire({
-        title: "Reserva Confirmada",
-        text: `Has reservado la ${reserva.value.nombre}.`,
-        icon: "success",
-    });
-    reserva.value = null;
-    carritoVisible.value = false;
+const confirmarReservas = async () => {
+    try {
+        // Crear los datos de la reserva
+        const datosReserva = {
+            fecha_creacion: new Date().toISOString().split('T')[0],
+            estado: 'Confirmado',
+            pagada: false,
+            user_id: user.id,
+            detalles: reservas.value.map(reserva => ({
+                habitacion_id: reserva.id,
+                fecha_entrada: reserva.fecha_entrada,
+                fecha_salida: reserva.fecha_salida,
+                precio: reserva.precio * reserva.noches
+            }))
+        };
+
+        // Enviar la reserva al servidor
+        const response = await axios.post('/api/reservas', datosReserva);
+
+        if (response.status === 201) {
+            Swal.fire({
+                title: "Reserva Confirmada",
+                text: `Tu reserva ha sido confirmada por un total de $${total.value}`,
+                icon: "success",
+                confirmButtonColor: "#7D5A50"
+            }).then(() => {
+                limpiarCarrito();
+            });
+        }
+    } catch (error) {
+        console.error('Error al crear la reserva:', error);
+        Swal.fire({
+            title: "Error",
+            text: error.response?.data?.error || "No se pudo procesar la reserva",
+            icon: "error",
+            confirmButtonColor: "#7D5A50"
+        });
+    }
 };
 
 const urlBase = "http://localhost:8000/api/";
@@ -160,7 +190,7 @@ const limpiarCarrito = () => {
     carritoVisible.value = false;
 };
 
-const confirmarReservas = () => {
+/* const confirmarReservas = () => {
     Swal.fire({
         title: "Reservas Confirmadas",
         text: `Has confirmado ${reservas.value.length} reservas por un total de $${total.value}`,
@@ -169,7 +199,7 @@ const confirmarReservas = () => {
     }).then(() => {
         limpiarCarrito();
     });
-};
+}; */
 
 // Reemplaza el computed total actual
 const total = computed(() => {
