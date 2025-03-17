@@ -2,7 +2,10 @@
 @tailwind components;
 @tailwind utilities;
  */
-
+ body {
+    background-color: white !important;
+    color: black !important;
+}
 @layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
