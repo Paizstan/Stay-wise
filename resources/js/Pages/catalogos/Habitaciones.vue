@@ -20,7 +20,7 @@ const habitaciones = ref([]); //arreglo de habitaciones
 const dialog = ref(false); //permite mostrar/ocultar el modal para agregar/editar habitaciones
 const deleteHabitacionDialog = ref(false);
 const habitacion = ref({});
-
+const showImagesDialog = ref(false);
 const selectedHabitaciones = ref([]); // Corrected ref name
 const imagenes = ref([]); //arreglo de imagenes para las habitaciones
 const fileUploadRef = ref(null);
@@ -28,7 +28,7 @@ const filters = ref({
     global: { value: null },
 });
 const submitted = ref(false);
-const url = "http://127.0.0.1:8000/api/habitaciones";
+const url = "api/habitaciones";
 //Estos creo que seria para ver ls limpieza o si esta disponible
 /* const statuses = ref([
         {label: 'INSTOCK', value: 'instock'},
@@ -52,6 +52,7 @@ const openNew = () => {
 const hideDialog = () => {
     dialog.value = false;
     submitted.value = false;
+    clearFiles();
 };
 //FUNCIONES PARA HACER PETICIONES A ALA API
 const fetchHabitaciones = async () => {
@@ -63,40 +64,92 @@ const fetchHabitaciones = async () => {
     }
 };
 
-const saveOrUpdate = () => {
+const saveOrUpdate = async () => {
     submitted.value = true;
 
     if (habitacion?.value.nombre?.trim()) {
-        if (habitacion.value.id) {
-            //se va actualizar la habitacion
-            toast.add({
-                severity: "success",
-                summary: "Successful",
-                detail: "Habitacion Updated",
-                life: 3000,
+        try {
+            const formData = new FormData();
+            formData.append('nombre', habitacion.value.nombre);
+            formData.append('tipo', habitacion.value.tipo);
+            formData.append('capacidad', habitacion.value.capacidad);
+            formData.append('descripcion', habitacion.value.descripcion);
+            formData.append('precio', habitacion.value.precio);
+
+            imagenes.value.forEach((img, index) => {
+                formData.append(`imagenes[${index}]`, img.file);
             });
-        } else {
-            //se va agregar un nuevo producto
+
+            if (habitacion.value.id) {
+                // Actualizar la habitación existente
+                await axios.post(`${url}/${habitacion.value.id}`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                toast.add({
+                    severity: "success",
+                    summary: "Successful",
+                    detail: "Habitacion Updated",
+                    life: 3000,
+                });
+            } else {
+                // Crear una nueva habitación
+                await axios.post(url, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                toast.add({
+                    severity: "success",
+                    summary: "Successful",
+                    detail: "Habitación Created",
+                    life: 3000,
+                });
+            }
+
+            fetchHabitaciones(); // Actualizar la lista de habitaciones
+            dialog.value = false;
+            habitacion.value = {};
+            imagenes.value = [];
+        } catch (error) {
+            console.error("Error al guardar la habitación", error);
             toast.add({
-                severity: "success",
-                summary: "Successful",
-                detail: "Habitación Created",
+                severity: "error",
+                summary: "Error",
+                detail: "No se pudo guardar la habitación",
                 life: 3000,
             });
         }
-
-        dialog.value = false;
-        habitacion.value = {};
     }
 };
-const editHabitacion = (prod) => {
-    habitacion.value = { ...prod };
+
+const onImageSelect = (event) => {
+    const files = event.files;
+    for (const file of files) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagenes.value.push({
+                file: file,
+                url: e.target.result
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+const editHabitacion = (habit) => {
+    habitacion.value = { ...habit };
     dialog.value = true;
 };
-const confirmDeleteHabitacion = (prod) => {
-    habitacion.value = { ...prod };
+const confirmDeleteHabitacion = (habit) => {
+    habitacion.value = { ...habit };
     deleteHabitacionDialog.value = true;
 };
+const viewImages = (habita) => {
+        habitacion.value = {...habita};        
+        showImagesDialog.value = true;
+    };
 const deleteHabitacion = () => {
     habitaciones.value = habitaciones.value.filter(
         (val) => val.id !== habitacion.value.id
@@ -142,7 +195,7 @@ const getStatusLabel = (status) => {
     }
 };
 
-const onImageSelect = (event) => {
+/* const onImageSelect = (event) => {
     const files = event.files;
     for (const file of files) {
         const reader = new FileReader();
@@ -151,7 +204,7 @@ const onImageSelect = (event) => {
         };
         reader.readAsDataURL(file);
     }
-};
+}; */
 //funcion para eliminar una imagen
 const removeImage = (index) => {
     imagenes.value.splice(index, 1);
@@ -161,8 +214,10 @@ const onFileClear = () => {
     imagenes.value = [];
 };
 const clearFiles = () => {
-    fileUploadRef.value.clear();
-    imagenes.value = [];
+    if(fileUploadRef.value) {
+            fileUploadRef.value.clear();
+        }
+        imagenes.value = [];
 };
 
 const dialogTitle = computed(() =>
@@ -428,7 +483,7 @@ const btnTitle = computed(() =>
                                     class="relative group"
                                 >
                                     <img
-                                        :src="img"
+                                        :src="img.url"
                                         class="w-full h-24 object-cover rounded-md shadow"
                                     />
                                     <Button

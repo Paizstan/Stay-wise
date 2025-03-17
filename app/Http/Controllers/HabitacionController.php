@@ -33,7 +33,7 @@ class HabitacionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request) 
     {
         try {
             // Si los datos vienen en un campo 'habitaciones' como JSON, los decodificamos
