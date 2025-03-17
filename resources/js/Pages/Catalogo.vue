@@ -27,9 +27,9 @@ const fechaEntrada = ref('');
 const fechaSalida = ref('');
 const reserva = ref(null);
 const reservas = ref([]); // Array para almacenar múltiples reservas
-/* const total = computed(() => {
-    return reservas.value.reduce((sum, reserva) => sum + reserva.precio, 0);
-}); */
+const urlBase = "http://localhost:8000/api/";
+
+
 
 const destacados = ref([
     {
@@ -215,32 +215,32 @@ const handleLogout = () => {
 };
  */
 
- const confirmarReservas = async () => {
-    try {
-        // Crear los datos de la reserva
-        const datosReserva = {
-            fecha_creacion: new Date().toISOString().split('T')[0],
-            estado: 'Confirmado',
-            pagada: false,
-            user_id: user.id,
-            detalles: reservas.value.map(reserva => ({
-                habitacion_id: reserva.id,
-                fecha_entrada: reserva.fechaEntrada, // Asegúrate de que estos campos existan
-                fecha_salida: reserva.fechaSalida,   // en el objeto reserva
-                precio: reserva.precio * reserva.noches,
-                noches: reserva.noches
-            }))
-        };
+        const confirmarReservas = async () => {
+            try {
+                // Crear los datos de la reserva
+                const datosReserva = {
+                    fecha_creacion: new Date().toISOString().split('T')[0],
+                    estado: 'Confirmado',
+                    pagada: false,
+                    user_id: user.id,
+                    detalles: reservas.value.map(reserva => ({
+                        habitacion_id: reserva.id,
+                        fecha_entrada: reserva.fechaEntrada, // Asegúrate de que estos campos existan
+                        fecha_salida: reserva.fechaSalida,   // en el objeto reserva
+                        precio: reserva.precio * reserva.noches,
+                        noches: reserva.noches
+                    }))
+                };
 
-        const response = await axios.post('/api/reservas', datosReserva);
+                const response = await axios.post('/api/reservas', datosReserva);
 
-        if (response.status === 201) {
-            // Actualiza esto para usar el total calculado correctamente
-            const totalPagado = reservas.value.reduce((sum, reserva) => 
-                sum + (reserva.precio * reserva.noches), 0
-            );
+                if (response.status === 201) {
+                    // Actualiza esto para usar el total calculado correctamente
+                    const totalPagado = reservas.value.reduce((sum, reserva) => 
+                        sum + (reserva.precio * reserva.noches), 0
+                    );
 
-            Swal.fire({
+                    Swal.fire({
                 title: "Reserva Confirmada",
                 text: `Tu reserva ha sido confirmada por un total de $${totalPagado}`,
                 icon: "success",
@@ -249,17 +249,17 @@ const handleLogout = () => {
                 limpiarCarrito();
             });
         }
-    } catch (error) {
-        console.error('Error al crear la reserva:', error);
-        Swal.fire({
-            title: "Error",
-            text: error.response?.data?.error || "No se pudo procesar la reserva",
-            icon: "error",
-            confirmButtonColor: "#7D5A50"
-        });
-    }
-};
-
+        } catch (error) {
+            console.error('Error al crear la reserva:', error);
+            Swal.fire({
+                title: "Error",
+                text: error.response?.data?.error || "No se pudo procesar la reserva",
+                icon: "error",
+                confirmButtonColor: "#7D5A50"
+            });
+        }
+    };
+    
 // Modifica también la función procesarReserva para asegurar que todos los datos necesarios se incluyan
 const procesarReserva = () => {
     if (!fechaEntrada.value || !fechaSalida.value) {
@@ -301,7 +301,6 @@ const procesarReserva = () => {
     fechaSalida.value = '';
 };
 
-const urlBase = "http://localhost:8000/api/";
 
 const fetchHabitaciones = async () => {
     try {
@@ -373,7 +372,35 @@ const agregarMasHabitaciones = () => {
 
 onMounted(() => {
     fetchHabitaciones();
+
+    
 });
+// Añade esto después de las otras constantes ref en la sección de script
+/* const habitacionesOfertas = ref([
+    {
+        id: 1,
+        nombre: "Oferta Especial - Suite Luna de Miel",
+        descripcion: "Paquete romántico con champagne y decoración especial",
+        precio: 250,
+        imagen: "https://example.com/suite-luna-miel.jpg"
+    },
+    {
+        id: 2,
+        nombre: "Paquete Familiar",
+        descripcion: "Habitación amplia con actividades para niños incluidas",
+        precio: 200,
+        imagen: "https://example.com/paquete-familiar.jpg"
+    },
+    {
+        id: 3,
+        nombre: "Escapada de Fin de Semana",
+        descripcion: "2 noches con desayuno incluido",
+        precio: 180,
+        imagen: "https://example.com/escapada-finde.jpg"
+    }
+]);
+ */
+
 </script>
 
 <template>

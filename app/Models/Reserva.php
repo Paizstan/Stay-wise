@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User; // Ensure User model is imported
+use App\Models\Habitacion; // Ensure Habitacion model is imported
 
 class Reserva extends Model
 {
@@ -20,5 +21,10 @@ class Reserva extends Model
     public function detalles()
     {
         return $this->hasMany(DetalleReserva::class, 'reserva_id');
+    }
+
+    public function habitacion()
+    {
+        return $this->belongsTo(Habitacion::class, 'habitacion_id');
     }
 }
