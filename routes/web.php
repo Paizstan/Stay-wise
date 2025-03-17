@@ -36,9 +36,9 @@ Route::get('/habitaciones', function () {
     return Inertia::render('catalogos/Habitaciones');
 })->middleware(['auth', 'verified'])->name('habitaciones');
 
-Route::get('/catalogos', function () {
-    return Inertia::render('catalogos/Catalogos');
-})->middleware(['auth', 'verified'])->name('catalogos');
+Route::get('/reservas', function () {
+    return Inertia::render('catalogos/GestionReservas');
+})->middleware(['auth', 'verified'])->name('reservas');
 
 Route::get('/gestion', function () {
     return Inertia::render('catalogos/Gestion');

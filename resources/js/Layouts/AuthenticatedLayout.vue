@@ -115,10 +115,10 @@ const logout = async () => {
                             class="px-6 py-3 hover:bg-[#D3BBA6] flex items-center"
                         >
                             <Link 
-                                :href="route('catalogos')"
+                                :href="route('reservas')"
                                 class="flex items-center w-full">
                                 <FontAwesomeIcon :icon="faBook" class="mr-3" />
-                                Catalogos
+                                Reservas
                             </Link>
                         </li>
                         <!-- <li
