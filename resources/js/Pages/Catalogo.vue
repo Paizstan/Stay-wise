@@ -22,6 +22,10 @@ const user = page.props.auth.user;
 const isOpen = ref(false);
 const carritoVisible = ref(false);
 const reserva = ref(null);
+const reservas = ref([]); // Array para almacenar múltiples reservas
+/* const total = computed(() => {
+    return reservas.value.reduce((sum, reserva) => sum + reserva.precio, 0);
+}); */
 
 const destacados = ref([
     {
@@ -93,10 +97,21 @@ const handleLogout = () => {
 
 const reservarHabitacion = (habitacion) => {
     if (!user) {
-        Swal.fire("Debes estar autenticado para realizar una reserva.");
+        Swal.fire({
+            title: "Debes iniciar sesión",
+            text: "Para realizar reservas necesitas estar autenticado",
+            icon: "warning",
+            confirmButtonColor: "#7D5A50"
+        });
         return;
     }
-    reserva.value = habitacion;
+    // Añadir la habitación al array de reservas
+    reservas.value.push({
+        ...habitacion,
+        fechaReserva: new Date().toLocaleDateString(),
+        noches: 1,
+        precio: Number(habitacion.precio) // Asegurarse de que el precio sea un número
+    });
     carritoVisible.value = true;
 };
 
@@ -129,8 +144,45 @@ const scrollToHabitaciones = () => {
             behavior: 'smooth',
             block: 'start'
         });
+        isOpen.value = false;
     }
 };
+
+const eliminarReserva = (index) => {
+    reservas.value.splice(index, 1);
+    if (reservas.value.length === 0) {
+        carritoVisible.value = false;
+    }
+};
+
+const limpiarCarrito = () => {
+    reservas.value = [];
+    carritoVisible.value = false;
+};
+
+const confirmarReservas = () => {
+    Swal.fire({
+        title: "Reservas Confirmadas",
+        text: `Has confirmado ${reservas.value.length} reservas por un total de $${total.value}`,
+        icon: "success",
+        confirmButtonColor: "#7D5A50"
+    }).then(() => {
+        limpiarCarrito();
+    });
+};
+
+// Reemplaza el computed total actual
+const total = computed(() => {
+    return reservas.value.reduce((sum, reserva) => {
+        return sum + (reserva.precio * (reserva.noches || 1));
+    }, 0);
+});
+
+/* const calcularTotal = () => {
+    total.value = reservas.value.reduce((sum, reserva) => {
+        return sum + (reserva.precio * reserva.noches);
+    }, 0);
+}; */
 
 onMounted(() => {
     fetchHabitaciones();
@@ -397,42 +449,76 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- Carrito de Reservas -->
-            <div
-                v-if="carritoVisible"
-                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-            >
-                <div class="bg-white p-6 rounded-lg shadow-lg w-96">
-                    <h2 class="text-2xl font-bold mb-4">Reserva</h2>
-                    <div v-if="reserva">
-                        <img
-                            :src="reserva.imagen"
-                            class="w-full h-48 object-cover mb-4"
-                        />
-                        <p><strong>Nombre:</strong> {{ reserva.nombre }}</p>
-                        <p>
-                            <strong>Descripción:</strong>
-                            {{ reserva.descripcion }}
-                        </p>
-                        <p>
-                            <strong>Precio:</strong> ${{ reserva.precio }}/noche
-                        </p>
-                        <button
-                            @click="confirmarReserva"
-                            class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
-                        >
-                            Confirmar Reserva
-                        </button>
+           <!-- Carrito de Reservas -->
+<div v-if="carritoVisible" 
+     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl mx-4">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold text-[#5E3023]">Carrito de Reservas</h2>
+            <button @click="carritoVisible = false" 
+                    class="text-gray-500 hover:text-gray-700">
+                <span class="text-2xl">&times;</span>
+            </button>
+        </div>
+
+        <!-- Lista de reservas -->
+        <div v-if="reservas.length > 0" class="space-y-4">
+            <div v-for="(reserva, index) in reservas" 
+                 :key="index"
+                 class="flex items-center justify-between border-b pb-4">
+                <div class="flex items-center space-x-4">
+                    <img :src="reserva.imagen" 
+                         class="w-20 h-20 object-cover rounded"
+                         alt="Imagen habitación">
+                    <div>
+                        <h3 class="font-semibold text-[#5E3023]">{{ reserva.nombre }}</h3>
+                        <p class="text-sm text-gray-600">{{ reserva.descripcion }}</p>
+                        <div class="flex items-center space-x-2 mt-2">
+                            <label class="text-sm">Noches:</label>
+                            <input type="number" 
+                                   v-model="reserva.noches" 
+                                   min="1" 
+                                   class="w-16 px-2 py-1 border rounded"
+                                   @change="calcularTotal">
+                        </div>
                     </div>
-                    <button
-                        @click="carritoVisible = false"
-                        class="w-full bg-red-500 text-white py-2 rounded mt-4 hover:bg-red-700"
-                    >
-                        Cancelar
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-[#5E3023]">${{ reserva.precio * reserva.noches }}</p>
+                    <button @click="eliminarReserva(index)"
+                            class="text-red-500 hover:text-red-700 text-sm">
+                        Eliminar
                     </button>
                 </div>
             </div>
 
+            <!-- Total y botones -->
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="font-bold text-lg">Total:</span>
+                    <span class="font-bold text-lg text-[#5E3023]">
+                        ${{ total.toFixed(2) }}
+                    </span>
+                </div>
+                <div class="flex space-x-4">
+                    <button @click="confirmarReservas"
+                            class="flex-1 bg-[#7D5A50] text-white py-2 rounded hover:bg-[#5E3023]">
+                        Confirmar Reservas
+                    </button>
+                    <button @click="limpiarCarrito"
+                            class="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-700">
+                        Vaciar Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Carrito vacío -->
+        <div v-else class="text-center py-8">
+            <p class="text-gray-500">No hay reservas en el carrito</p>
+        </div>
+    </div>
+</div>
             <!-- Eventos y Celebraciones -->
             <div class="my-12">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
