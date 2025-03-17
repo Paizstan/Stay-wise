@@ -122,6 +122,16 @@ const fetchHabitaciones = async () => {
     }
 };
 
+const scrollToHabitaciones = () => {
+    const habitacionesSection = document.querySelector('#habitacionesSection');
+    if (habitacionesSection) {
+        habitacionesSection.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+};
+
 onMounted(() => {
     fetchHabitaciones();
 });
@@ -139,8 +149,8 @@ onMounted(() => {
                 <!-- Botones a la derecha -->
                 <div class="hidden lg:flex items-center space-x-4">
                     <button
-                        class="text-white hover:text-[#E1C699] flex items-center space-x-2"
-                    >
+                        @click="scrollToHabitaciones"
+                        class="text-white hover:text-[#E1C699] flex items-center space-x-2">
                         <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
                         <span>Habitaciones</span>
                     </button>
@@ -195,6 +205,8 @@ onMounted(() => {
                     </template>
                 </div>
 
+            
+
                 <!-- Botón menú móvil -->
                 <button @click="isOpen = !isOpen" class="lg:hidden">
                     <FontAwesomeIcon :icon="faBars" class="w-6 h-6" />
@@ -205,6 +217,7 @@ onMounted(() => {
             <div v-if="isOpen" class="lg:hidden mt-4">
                 <div class="flex flex-col space-y-2">
                     <button
+                        @click="scrollToHabitaciones"
                         class="text-white hover:text-[#E1C699] flex items-center space-x-2"
                     >
                         <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
@@ -266,7 +279,7 @@ onMounted(() => {
         <div class="pt-20">
             <Swiper
                 :modules="[Navigation, Autoplay]"
-                navigation
+                :navigation="flase"
                 :autoplay="{ delay: 3000 }"
                 loop
                 class="my-6"
@@ -333,7 +346,7 @@ onMounted(() => {
             </div>
 
             <!-- Habitaciones -->
-            <div class="my-12">
+            <div class="my-12" ref="habitacionesSection" id="habitacionesSection">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
                     Habitaciones
                 </h2>
