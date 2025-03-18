@@ -293,6 +293,38 @@ onMounted(() => {
     fetchHabitaciones();    
 });
 
+// ...existing imports...
+
+const ofertas = ref([
+    {
+        id: 1,
+        nombre: "Paquete Luna de Miel",
+        descripcion: "Escapada romántica con cena incluida y decoración especial",
+        precio: 250,
+        imagen: "https://www.sofitelbarucalablanca.com/wp-content/uploads/sites/19/2023/04/T3P_1211-HDR-1170x780.jpg",
+        fecha_inicio: "2025-03-20",
+        fecha_fin: "2025-04-20"
+    },
+    {
+        id: 2,
+        nombre: "Paquete Familiar",
+        descripcion: "Habitación familiar con desayuno incluido y acceso a actividades",
+        precio: 300,
+        imagen: "https://cf.bstatic.com/xdata/images/hotel/max1024x768/530900719.jpg?k=93715490f016695d578526be6d55ae829e5d7b392290b1b0fd42fcdfa38c223f&o=&hp=1",
+        fecha_inicio: "2025-03-20",
+        fecha_fin: "2025-04-20"
+    },
+    {
+        id: 3,
+        nombre: "Oferta de Temporada",
+        descripcion: "20% de descuento en estadías de 3 noches o más",
+        precio: 180,
+        imagen: "https://images.trvl-media.com/lodging/66000000/65730000/65722800/65722721/c13b0293.jpg?impolicy=resizecrop&rw=575&rh=575&ra=fill",
+        fecha_inicio: "2025-03-20",
+        fecha_fin: "2025-04-20"
+    }
+]);
+
 </script>
 
 <template>
@@ -467,42 +499,47 @@ onMounted(() => {
                 </SwiperSlide>
             </Swiper>
 
-            <!-- Ofertas y Paquetes -->
-            <!-- <div class="my-12">
-                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
-                    Ofertas y Paquetes
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div
-                        v-for="habitacion in habitacionesOfertas"
-                        :key="habitacion.id"
-                        class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
-                    >
-                        <img
-                            :src="habitacion.imagen"
-                            class="w-full h-48 object-cover"
-                        />
-                        <div class="p-4">
-                            <h3 class="text-xl font-semibold text-[#5E3023]">
-                                {{ habitacion.nombre }}
-                            </h3>
-                            <p class="text-[#7D5A50]">
-                                {{ habitacion.descripcion }}
-                            </p>
-                            <p class="text-2xl font-bold text-[#5E3023] mt-2">
-                                ${{ habitacion.precio }}/noche
-                            </p>
-                            <button
-                                @click="reservarHabitacion(habitacion)"
-                                class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
-                            >
-                                Reservar Ahora
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
+            
+             <!-- Ofertas y Paquetes -->
+<div class="my-12">
+    <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+        Ofertas y Paquetes
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div
+            v-for="oferta in ofertas"
+            :key="oferta.id"
+            class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+        >
+            <img
+                :src="oferta.imagen"
+                :alt="oferta.nombre"
+                class="w-full h-48 object-cover"
+            />
+            <div class="p-4">
+                <h3 class="text-xl font-semibold text-[#5E3023]">
+                    {{ oferta.nombre }}
+                </h3>
+                <p class="text-[#7D5A50]">
+                    {{ oferta.descripcion }}
+                </p>
+                <p class="text-2xl font-bold text-[#5E3023] mt-2">
+                    ${{ oferta.precio }}/noche
+                </p>
+                <p class="text-sm text-gray-600 mt-1">
+                    Válido del {{ new Date(oferta.fecha_inicio).toLocaleDateString() }} 
+                    al {{ new Date(oferta.fecha_fin).toLocaleDateString() }}
+                </p>
+                <button
+                    @click="reservarHabitacion(oferta)"
+                    class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
+                >
+                    Reservar Ahora
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- Habitaciones -->
             <div class="my-12" ref="habitacionesSection" id="habitacionesSection">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
@@ -637,109 +674,114 @@ onMounted(() => {
             </div>
         </div>
 
-        <!-- Carrito vacío -->
-        <div v-else class="text-center py-8">
-            <p class="text-gray-500 mb-4">No hay reservas en el carrito</p>
-            <button @click="agregarMasHabitaciones"
-                    class="bg-[#E1C699] text-[#5E3023] px-6 py-2 rounded hover:bg-[#d4b483] transition-colors flex items-center space-x-2 mx-auto">
-                <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
-                <span>Agregar habitaciones</span>
-            </button>
-        </div>
-    </div>
-</div>
- 
-<!-- Modal de Reserva -->
-<div v-if="modalReservaVisible" 
-     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl mx-4">
-        <!-- Encabezado del modal -->
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-[#5E3023]">Detalles de la Reserva</h2>
-            <button @click="modalReservaVisible = false" 
-                    class="text-gray-500 hover:text-gray-700">
-                <span class="text-2xl">&times;</span>
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Información de la habitación -->
-            <div class="space-y-4">
-                <div class="w-full h-48 rounded-lg overflow-hidden">
-                    <img :src="`/images/habitacions/${habitacionSeleccionada?.imagenes?.[0]?.nombre || 'default-room.jpg'}`"
-                         :alt="habitacionSeleccionada?.nombre"
-                         class="w-full h-full object-cover"
-                         @error="$event.target.src = '/images/default-room.jpg'">
-                </div>
-                <div class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="text-lg font-semibold text-[#5E3023] mb-2">
-                        {{ habitacionSeleccionada?.nombre }}
-                    </h3>
-                    <p class="text-sm text-[#7D5A50] mb-3">
-                        {{ habitacionSeleccionada?.descripcion }}
-                    </p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-white p-2 rounded-md shadow-sm">
-                            <p class="text-xs text-gray-600">Tipo</p>
-                            <p class="font-semibold text-[#5E3023]">
-                                {{ habitacionSeleccionada?.tipo }}
-                            </p>
-                        </div>
-                        <div class="bg-white p-2 rounded-md shadow-sm">
-                            <p class="text-xs text-gray-600">Capacidad</p>
-                            <p class="font-semibold text-[#5E3023]">
-                                {{ habitacionSeleccionada?.capacidad }} personas
-                            </p>
-                        </div>
-                    </div>
-                    <div class="mt-3 p-2 bg-white rounded-md shadow-sm">
-                        <p class="text-xs text-gray-600">Precio por noche</p>
-                        <p class="text-xl font-bold text-[#5E3023]">
-                            ${{ habitacionSeleccionada?.precio }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formulario de fechas -->
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <h4 class="text-lg font-semibold text-[#5E3023] mb-4">Selecciona tus fechas</h4>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Fecha de entrada
-                        </label>
-                        <input type="date" 
-                               v-model="fechaEntrada"
-                               class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-[#7D5A50] focus:ring-1 focus:ring-[#7D5A50]"
-                               :min="new Date().toISOString().split('T')[0]">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Fecha de salida
-                        </label>
-                        <input type="date" 
-                               v-model="fechaSalida"
-                               class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-[#7D5A50] focus:ring-1 focus:ring-[#7D5A50]"
-                               :min="fechaEntrada">
-                    </div>
-
-                    <div class="flex justify-end space-x-3 mt-6">
-                        <button @click="modalReservaVisible = false"
-                                class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-                            Cancelar
-                        </button>
-                        <button @click="procesarReserva"
-                                class="px-4 py-2 bg-[#7D5A50] text-white rounded-md hover:bg-[#5E3023] transition-colors">
-                            Agregar al Carrito
-                        </button>
-                    </div>
+                <!-- Carrito vacío -->
+                <div v-else class="text-center py-8">
+                    <p class="text-gray-500 mb-4">No hay reservas en el carrito</p>
+                    <button @click="agregarMasHabitaciones"
+                            class="bg-[#E1C699] text-[#5E3023] px-6 py-2 rounded hover:bg-[#d4b483] transition-colors flex items-center space-x-2 mx-auto">
+                        <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
+                        <span>Agregar habitaciones</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
-</div>           <!-- Eventos y Celebraciones -->
+                    
+            <!-- Modal de Reserva -->
+            <div v-if="modalReservaVisible" 
+                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 overflow-y-auto">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl my-4">
+                    <!-- Encabezado del modal -->
+                    <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                        <h2 class="text-xl md:text-2xl font-bold text-[#5E3023]">Detalles de la Reserva</h2>
+                        <button @click="modalReservaVisible = false" 
+                                class="text-gray-500 hover:text-gray-700 p-2">
+                            <span class="text-2xl">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <!-- Información de la habitación -->
+                            <div class="space-y-4">
+                                <div class="w-full h-40 md:h-48 rounded-lg overflow-hidden">
+                                    <img :src="`/images/habitacions/${habitacionSeleccionada?.imagenes?.[0]?.nombre || 'default-room.jpg'}`"
+                                        :alt="habitacionSeleccionada?.nombre"
+                                        class="w-full h-full object-cover"
+                                        @error="$event.target.src = '/images/default-room.jpg'">
+                                </div>
+                                <div class="bg-gray-50 p-3 md:p-4 rounded-lg">
+                                    <h3 class="text-base md:text-lg font-semibold text-[#5E3023] mb-2">
+                                        {{ habitacionSeleccionada?.nombre }}
+                                    </h3>
+                                    <p class="text-sm text-[#7D5A50] mb-3">
+                                        {{ habitacionSeleccionada?.descripcion }}
+                                    </p>
+                                    <div class="grid grid-cols-2 gap-2 md:gap-3">
+                                        <div class="bg-white p-2 rounded-md shadow-sm">
+                                            <p class="text-xs text-gray-600">Tipo</p>
+                                            <p class="font-semibold text-[#5E3023] text-sm">
+                                                {{ habitacionSeleccionada?.tipo }}
+                                            </p>
+                                        </div>
+                                        <div class="bg-white p-2 rounded-md shadow-sm">
+                                            <p class="text-xs text-gray-600">Capacidad</p>
+                                            <p class="font-semibold text-[#5E3023] text-sm">
+                                                {{ habitacionSeleccionada?.capacidad }} personas
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 p-2 bg-white rounded-md shadow-sm">
+                                        <p class="text-xs text-gray-600">Precio por noche</p>
+                                        <p class="text-lg md:text-xl font-bold text-[#5E3023]">
+                                            ${{ habitacionSeleccionada?.precio }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formulario de fechas -->
+                            <div class="bg-gray-50 p-3 md:p-4 rounded-lg">
+                                <h4 class="text-base md:text-lg font-semibold text-[#5E3023] mb-4">
+                                    Selecciona tus fechas
+                                </h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Fecha de entrada
+                                        </label>
+                                        <input type="date" 
+                                            v-model="fechaEntrada"
+                                            class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-[#7D5A50] focus:ring-1 focus:ring-[#7D5A50]"
+                                            :min="new Date().toISOString().split('T')[0]">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                                            Fecha de salida
+                                        </label>
+                                        <input type="date" 
+                                            v-model="fechaSalida"
+                                            class="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-[#7D5A50] focus:ring-1 focus:ring-[#7D5A50]"
+                                            :min="fechaEntrada">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-6">
+                            <button @click="modalReservaVisible = false"
+                                    class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+                                Cancelar
+                            </button>
+                            <button @click="procesarReserva"
+                                    class="w-full sm:w-auto px-4 py-2 bg-[#7D5A50] text-white rounded-md hover:bg-[#5E3023] transition-colors">
+                                Agregar al Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>         <!-- Eventos y Celebraciones -->
             <div class="my-12">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
                     Eventos & Celebraciones
