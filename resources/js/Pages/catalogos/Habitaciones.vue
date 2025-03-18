@@ -146,22 +146,33 @@ const confirmDeleteHabitacion = (habit) => {
     habitacion.value = { ...habit };
     deleteHabitacionDialog.value = true;
 };
-const viewImages = (habita) => {
-        habitacion.value = {...habita};        
+const viewImages = (habit) => {
+        habitacion.value = {...habit};        
         showImagesDialog.value = true;
     };
-const deleteHabitacion = () => {
-    habitaciones.value = habitaciones.value.filter(
-        (val) => val.id !== habitacion.value.id
-    );
-    deleteHabitacionDialog.value = false;
-    habitacion.value = {};
-    toast.add({
-        severity: "success",
-        summary: "Successful",
-        detail: "Habitacion Deleted",
-        life: 3000,
-    });
+    const deleteHabitacion = async () => {
+    try {
+        await axios.delete(`${url}/${habitacion.value.id}`);
+        habitaciones.value = habitaciones.value.filter(
+            (val) => val.id !== habitacion.value.id
+        );
+        deleteHabitacionDialog.value = false;
+        habitacion.value = {};
+        toast.add({
+            severity: "success",
+            summary: "Successful",
+            detail: "Habitacion Deleted",
+            life: 3000,
+        });
+    } catch (error) {
+        console.error("Error al eliminar la habitación", error);
+        toast.add({
+            severity: "error",
+            summary: "Error",
+            detail: "No se pudo eliminar la habitación",
+            life: 3000,
+        });
+    }
 };
 const findIndexById = (id) => {
     let index = -1;
@@ -344,6 +355,7 @@ const btnTitle = computed(() =>
                                 style="min-width: 12rem"
                             >
                                 <template #body="slotProps">
+                                    <Button icon="pi pi-images" outlined rounded class="mr-2" severity="info" @click="viewImages(slotProps.data)" />
                                     <Button
                                         icon="pi pi-pencil"
                                         outlined
@@ -357,7 +369,7 @@ const btnTitle = computed(() =>
                                         rounded
                                         severity="danger"
                                         @click="
-                                            confirmDeleteHabitacion(
+                                            confirmDeleteHabitacio(
                                                 slotProps.data
                                             )
                                         "
@@ -412,8 +424,7 @@ const btnTitle = computed(() =>
                                 <small
                                     v-if="submitted && !habitacion.capacidad"
                                     class="text-red-500"
-                                    >Seleccione la capacidad de la
-                                    Habitacion</small
+                                    >Seleccione la capacidad de la Habitacion</small
                                 >
                             </div>
                             <div>
@@ -508,6 +519,13 @@ const btnTitle = computed(() =>
                                 @click="saveOrUpdate"
                             />
                         </template>
+                    </Dialog>
+                    <Dialog v-model:visible="showImagesDialog" header="Imagenes de la Habitación" :style="{ width: '550px' }" class="p-fluid">
+                        <Swiper :modules="[Navigation]" navigation class="h-40">
+                            <SwiperSlide v-for="img in habitacion.imagenes" :key="img">
+                                <img :src="`images/habitacions/${img.nombre}`" class="w-full h-40 object-contain" />
+                            </SwiperSlide>
+                        </Swiper>
                     </Dialog>
                     
                 </div>
