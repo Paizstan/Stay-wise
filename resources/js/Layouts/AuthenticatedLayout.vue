@@ -117,7 +117,7 @@ const logout = async () => {
                             <Link 
                                 :href="route('reservas')"
                                 class="flex items-center w-full">
-                                <FontAwesomeIcon :icon="faBook" class="mr-3" />
+                                <FontAwesomeIcon :icon="faClipboardList" class="mr-3" />
                                 Reservas
                             </Link>
                         </li>
