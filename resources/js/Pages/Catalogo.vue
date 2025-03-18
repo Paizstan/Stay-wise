@@ -28,6 +28,8 @@ const fechaSalida = ref('');
 const reserva = ref(null);
 const reservas = ref([]); // Array para almacenar múltiples reservas
 const urlBase = "http://localhost:8000/api/";
+const habitaciones = ref([]);
+
 
 
 
@@ -55,7 +57,6 @@ const destacados = ref([
     },
 ]);
 
-const habitaciones = ref([]);
 
 const eventos = ref([
     {
@@ -99,26 +100,6 @@ const handleLogout = () => {
     router.post(route("logout"));
 };
 
-/* const reservarHabitacion = (habitacion) => {
-    if (!user) {
-        Swal.fire({
-            title: "Debes iniciar sesión",
-            text: "Para realizar reservas necesitas estar autenticado",
-            icon: "warning",
-            confirmButtonColor: "#7D5A50"
-        });
-        return;
-    }
-    // Añadir la habitación al array de reservas
-    reservas.value.push({
-        ...habitacion,
-        fechaReserva: new Date().toLocaleDateString(),
-        noches: 1,
-        precio: Number(habitacion.precio) // Asegurarse de que el precio sea un número
-    });
-    carritoVisible.value = true;
-};
- */
 
  const reservarHabitacion = (habitacion) => {
     if (!user) {
@@ -130,137 +111,12 @@ const handleLogout = () => {
         });
         return;
     }
-    // Mostrar el modal con los detalles de la habitación
     habitacionSeleccionada.value = habitacion;
     modalReservaVisible.value = true;
 };
 
-/* const procesarReserva = () => {
-    // Validar fechas
-    if (!fechaEntrada.value || !fechaSalida.value) {
-        Swal.fire({
-            title: "Error",
-            text: "Por favor selecciona las fechas de entrada y salida",
-            icon: "error",
-            confirmButtonColor: "#7D5A50"
-        });
-        return;
-    }
 
-    // Calcular número de noches
-    const entrada = new Date(fechaEntrada.value);
-    const salida = new Date(fechaSalida.value);
-    const noches = Math.ceil((salida - entrada) / (1000 * 60 * 60 * 24));
-
-    // Añadir al carrito
-    reservas.value.push({
-        ...habitacionSeleccionada.value,
-        fechaEntrada: fechaEntrada.value,
-        fechaSalida: fechaSalida.value,
-        noches: noches,
-        precio: Number(habitacionSeleccionada.value.precio)
-    });
-
-    // Cerrar modal y mostrar carrito
-    modalReservaVisible.value = false;
-    carritoVisible.value = true;
     
-    // Limpiar selección
-    habitacionSeleccionada.value = null;
-    fechaEntrada.value = '';
-    fechaSalida.value = '';
-}; */
-
-
-
-
-/* const confirmarReservas = async () => {
-    try {
-        // Crear los datos de la reserva
-        const datosReserva = {
-            fecha_creacion: new Date().toISOString().split('T')[0],
-            estado: 'Confirmado',
-            pagada: false,
-            user_id: user.id,
-            detalles: reservas.value.map(reserva => ({
-                habitacion_id: reserva.id,
-                fecha_entrada: reserva.fecha_entrada,
-                fecha_salida: reserva.fecha_salida,
-                precio: reserva.precio * reserva.noches
-            }))
-        };
-
-        // Enviar la reserva al servidor
-        const response = await axios.post('/api/reservas', datosReserva);
-
-        if (response.status === 201) {
-            Swal.fire({
-                title: "Reserva Confirmada",
-                text: `Tu reserva ha sido confirmada por un total de $${total.value}`,
-                icon: "success",
-                confirmButtonColor: "#7D5A50"
-            }).then(() => {
-                limpiarCarrito();
-            });
-        }
-    } catch (error) {
-        console.error('Error al crear la reserva:', error);
-        Swal.fire({
-            title: "Error",
-            text: error.response?.data?.error || "No se pudo procesar la reserva",
-            icon: "error",
-            confirmButtonColor: "#7D5A50"
-        });
-    }
-};
- */
-
-        const confirmarReservas = async () => {
-            try {
-                // Crear los datos de la reserva
-                const datosReserva = {
-                    fecha_creacion: new Date().toISOString().split('T')[0],
-                    estado: 'Confirmado',
-                    pagada: false,
-                    user_id: user.id,
-                    detalles: reservas.value.map(reserva => ({
-                        habitacion_id: reserva.id,
-                        fecha_entrada: reserva.fechaEntrada, // Asegúrate de que estos campos existan
-                        fecha_salida: reserva.fechaSalida,   // en el objeto reserva
-                        precio: reserva.precio * reserva.noches,
-                        noches: reserva.noches
-                    }))
-                };
-
-                const response = await axios.post('/api/reservas', datosReserva);
-
-                if (response.status === 201) {
-                    // Actualiza esto para usar el total calculado correctamente
-                    const totalPagado = reservas.value.reduce((sum, reserva) => 
-                        sum + (reserva.precio * reserva.noches), 0
-                    );
-
-                    Swal.fire({
-                title: "Reserva Confirmada",
-                text: `Tu reserva ha sido confirmada por un total de $${totalPagado}`,
-                icon: "success",
-                confirmButtonColor: "#7D5A50"
-            }).then(() => {
-                limpiarCarrito();
-            });
-        }
-        } catch (error) {
-            console.error('Error al crear la reserva:', error);
-            Swal.fire({
-                title: "Error",
-                text: error.response?.data?.error || "No se pudo procesar la reserva",
-                icon: "error",
-                confirmButtonColor: "#7D5A50"
-            });
-        }
-    };
-    
-// Modifica también la función procesarReserva para asegurar que todos los datos necesarios se incluyan
 const procesarReserva = () => {
     if (!fechaEntrada.value || !fechaSalida.value) {
         Swal.fire({
@@ -335,16 +191,7 @@ const limpiarCarrito = () => {
     carritoVisible.value = false;
 };
 
-/* const confirmarReservas = () => {
-    Swal.fire({
-        title: "Reservas Confirmadas",
-        text: `Has confirmado ${reservas.value.length} reservas por un total de $${total.value}`,
-        icon: "success",
-        confirmButtonColor: "#7D5A50"
-    }).then(() => {
-        limpiarCarrito();
-    });
-}; */
+
 
 // Reemplaza el computed total actual
 const total = computed(() => {
@@ -352,12 +199,6 @@ const total = computed(() => {
         return sum + (reserva.precio * (reserva.noches || 1));
     }, 0);
 });
-
-/* const calcularTotal = () => {
-    total.value = reservas.value.reduce((sum, reserva) => {
-        return sum + (reserva.precio * reserva.noches);
-    }, 0);
-}; */
 
 const agregarMasHabitaciones = () => {
     carritoVisible.value = false;
@@ -371,35 +212,8 @@ const agregarMasHabitaciones = () => {
 };
 
 onMounted(() => {
-    fetchHabitaciones();
-
-    
+    fetchHabitaciones();    
 });
-// Añade esto después de las otras constantes ref en la sección de script
-/* const habitacionesOfertas = ref([
-    {
-        id: 1,
-        nombre: "Oferta Especial - Suite Luna de Miel",
-        descripcion: "Paquete romántico con champagne y decoración especial",
-        precio: 250,
-        imagen: "https://example.com/suite-luna-miel.jpg"
-    },
-    {
-        id: 2,
-        nombre: "Paquete Familiar",
-        descripcion: "Habitación amplia con actividades para niños incluidas",
-        precio: 200,
-        imagen: "https://example.com/paquete-familiar.jpg"
-    },
-    {
-        id: 3,
-        nombre: "Escapada de Fin de Semana",
-        descripcion: "2 noches con desayuno incluido",
-        precio: 180,
-        imagen: "https://example.com/escapada-finde.jpg"
-    }
-]);
- */
 
 </script>
 
