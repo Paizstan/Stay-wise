@@ -127,13 +127,22 @@ const confirmarReservas = async () => {
     }
 
     try {
+        // Validar que todos los detalles de reserva sean correctos
+        const detallesValidos = reservas.value.every(reserva => {
+            return reserva.id && reserva.fechaEntrada && reserva.fechaSalida && reserva.precio && reserva.noches;
+        });
+
+        if (!detallesValidos) {
+            throw new Error("Faltan datos en las reservas, por favor verifica la información.");
+        }
+
         // Preparar los datos de la reserva
         const datosReserva = {
-            fecha_creacion: new Date().toISOString().split('T')[0],
-            estado: 'Recibida', // Cambiado a 'Recibida' para coincidir con el backend
+            fecha_creacion: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+            estado: 'Pendiente', // Cambiar aquí a 'Pendiente' u otro estado según el flujo del backend
             pagada: false,
             user_id: user.id,
-            detalles: reservas.value.map(reserva => ({
+            detalle_reservas: reservas.value.map(reserva => ({
                 habitacion_id: reserva.id,
                 fecha_entrada: reserva.fechaEntrada,
                 fecha_salida: reserva.fechaSalida,
@@ -142,7 +151,7 @@ const confirmarReservas = async () => {
             }))
         };
 
-        console.log('Datos a enviar:', datosReserva); // Para debug
+        console.log('Datos a enviar:', datosReserva); // Para depuración
 
         const response = await axios.post('/api/reservas', datosReserva);
 
@@ -165,13 +174,15 @@ const confirmarReservas = async () => {
         console.error('Error completo:', error);
         console.error('Respuesta del servidor:', error.response?.data);
 
-        let errorMessage = "No se pudo procesar la reserva";
-        
+        let errorMessage = "No se pudo procesar la reserva.";
+
+        // Si el servidor devuelve errores de validación
         if (error.response?.data?.errors) {
             errorMessage = Object.values(error.response.data.errors)
                 .flat()
                 .join('\n');
         } else if (error.response?.data?.message) {
+            // Si hay un mensaje general de error
             errorMessage = error.response.data.message;
         }
 
@@ -182,7 +193,7 @@ const confirmarReservas = async () => {
             confirmButtonColor: "#7D5A50"
         });
     }
-};  
+};
   
 const procesarReserva = () => {
     if (!fechaEntrada.value || !fechaSalida.value) {
