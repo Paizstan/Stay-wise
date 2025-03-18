@@ -20,7 +20,7 @@ class Reserva extends Model
 
     public function detalles()
     {
-        return $this->hasMany(DetalleReserva::class, 'reserva_id');
+        return $this->belongsTo(DetalleReserva::class, 'reserva_id');
     }
 
     public function habitacion()
