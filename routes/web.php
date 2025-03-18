@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\PDFController;
 
 
 /*Route::get('/', function () {
@@ -17,7 +18,7 @@ use App\Http\Controllers\ReservaController;
     ]);
 });*/
 
-Route::get("/", function(){
+Route::get("/", function () {
     return Inertia::render('Catalogo');
 })->name('catalogo');
 
@@ -29,7 +30,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
 });
 
 Route::get('/habitaciones', function () {
@@ -44,11 +44,17 @@ Route::get('/gestion', function () {
     return Inertia::render('catalogos/Gestion');
 })->middleware(['auth', 'verified'])->name('gestion');
 
-Route::middleware(['auth'])->group(function () {
+/* Route::middleware(['auth'])->group(function () {
     Route::get('/reporte/vista', [ReporteController::class, 'vistaReporte'])->name('reporte.vista');  // Vista previa en Vue
     Route::get('/reporte/pdf', [ReporteController::class, 'generarPDF'])->name('reporte.pdf'); // Descargar PDF
     Route::get('/reporte/datos', [ReservaController::class, 'getDatos']); // Ensure this route points to ReservaController
-});
+}); */
 
+Route::get('/reportes/reservas/rango', function () {
+    return Inertia::render('reportes/ReporteReservas');
+})->middleware(['auth', 'verified'])->name('reserva.rango');
 
-require __DIR__.'/auth.php';
+Route::get('/reportes/reservas', [PDFController::class, 'getReservas'])
+    ->middleware(['auth', 'verified'])->name('reportes.reservas');
+
+require __DIR__ . '/auth.php';
