@@ -1,9 +1,21 @@
 <script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head } from '@inertiajs/vue3';
+
+import { ref, onMounted, computed } from 'vue';
+import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+import axios from 'axios';
+import { FileUpload, InputNumber } from 'primevue';
+import { Swiper, SwiperSlide } from "swiper/vue"; //para el slide
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
+/* import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head } from "@inertiajs/vue3";
 import { ref, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
-import axios from "axios";
+import axios from "axios"; */
 //import Dropdown from "primevue/dropdown";
 
 
@@ -147,33 +159,28 @@ const confirmDeleteHabitacion = (habit) => {
     deleteHabitacionDialog.value = true;
 };
 const viewImages = (habit) => {
-        habitacion.value = {...habit};        
-        showImagesDialog.value = true;
-    };
+    habitacion.value = {...habit};        
+    showImagesDialog.value = true;
+};
     const deleteHabitacion = async () => {
     try {
-        await axios.delete(`${url}/${habitacion.value.id}`);
-        habitaciones.value = habitaciones.value.filter(
-            (val) => val.id !== habitacion.value.id
-        );
-        deleteHabitacionDialog.value = false;
-        habitacion.value = {};
-        toast.add({
-            severity: "success",
-            summary: "Successful",
-            detail: "Habitacion Deleted",
-            life: 3000,
-        });
-    } catch (error) {
-        console.error("Error al eliminar la habitación", error);
-        toast.add({
-            severity: "error",
-            summary: "Error",
-            detail: "No se pudo eliminar la habitación",
-            life: 3000,
-        });
+        const response = await axios.delete(`${url}/${habitacion.value.id}`);
+        if (response.status === 200 || response.status === 204 || response.status === 205) {
+            const { message } = response.data;
+            habitaciones.value = habitaciones.value.filter(val => val.id !== habitacion.value.id);
+            toast.add({ severity: 'success', summary: 'Habitación eliminada', detail: message || 'La habitación ha sido eliminada con éxito', life: 3000 });
+        }
+    } catch (err) {
+        if (err.response && (err.response.status === 500 || err.response.status === 409)) {
+            const { error } = err.response.data;
+            toast.add({ severity: 'error', summary: 'Error', detail: error, life: 3000 });
+        } else {
+            console.error("Error al eliminar una habitacion ", err);
+        }
     }
-};
+    deleteHabitacionDialog.value = false;
+    habitacion.value = {};
+    };
 const findIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < habitaciones.value.length; i++) {
@@ -369,7 +376,7 @@ const btnTitle = computed(() =>
                                         rounded
                                         severity="danger"
                                         @click="
-                                            confirmDeleteHabitacio(
+                                            confirmDeleteHabitacion(
                                                 slotProps.data
                                             )
                                         "
@@ -527,7 +534,19 @@ const btnTitle = computed(() =>
                             </SwiperSlide>
                         </Swiper>
                     </Dialog>
-                    
+                    <Dialog v-model:visible="deleteHabitacionDialog" :style="{ width: '450px' }" header="Confirmacion" :modal="true">
+                    <div class="flex items-center gap-4">
+                        <i class="pi pi-exclamation-triangle !text-3xl" />
+                        <span v-if="habitacion"
+                            >Segur@ que quieres eliminar la Habitacion <b>{{ habitacion.nombre }}</b
+                            >?</span
+                        >
+                    </div>
+                    <template #footer>
+                        <Button label="No" icon="pi pi-times" text @click="deleteHabitacionDialog = false" />
+                        <Button label="Si" icon="pi pi-check" @click="deleteHabitacion" />
+                    </template>
+                    </Dialog>                    
                 </div>
             </div>
         </div>
