@@ -13,14 +13,20 @@ class Reserva extends Model
 
     protected $table = 'reservas';
 
+    protected $fillable = [
+        'fecha_creacion',
+        'estado', 
+        'user_id',
+    ];
+
     public function usuario()
     {
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
-    public function detalles()
+    public function detalleReservas()
     {
-        return $this->belongsTo(DetalleReserva::class, 'reserva_id');
+        return $this->hasMany(DetalleReserva::class, 'reserva_id');
     }
 
     public function habitacion()

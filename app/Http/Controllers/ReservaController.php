@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetalleReserva;
 use App\Models\Reserva;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+
 
 class ReservaController extends Controller
 {
@@ -33,33 +37,67 @@ class ReservaController extends Controller
      */
     public function store(Request $request)
     {
-        try {  
-            // Validar los datos de entrada  
-            $request->validate([  
-                'fecha_creacion' => 'required|date',  
-                'estado' => 'required|in:Recibida,Confirmada,Anulada',  // Changed to 'Recibida', 'Confirmada', 'Anulada'
-                'pagada' => 'boolean',  
-                'user_id' => 'required|exists:users,id',  
-            ]);  
+    try {
+        // Validación de datos
+        $validData = $request->validate([
+            'fecha_creacion' => 'required|date',
+            'estado' => 'required|string',
+            'user_id' => 'required|exists:users,id',
+            'detalle_reservas' => 'required|array|min:1',
+            'detalle_reservas.*.fecha_entrada' => 'required|date',
+            'detalle_reservas.*.fecha_salida' => 'required|date|after:detalle_reservas.*.fecha_entrada',
+            'detalle_reservas.*.precio' => 'required|numeric|min:0',
+            'detalle_reservas.*.habitacion_id' => 'required|exists:habitaciones,id',
+        ]);
 
-            // Crear una nueva reserva  
-            $reserva = new Reserva();  
-            $reserva->fecha_creacion = $request->fecha_creacion;  
-            $reserva->estado = $request->estado;  
-            $reserva->pagada = $request->pagada ?? false; // Por defecto es false  
-            $reserva->user_id = $request->user_id;  
-            $reserva->save();  
+        // Iniciamos la transacción
+        DB::beginTransaction();
 
-            // Retornar una respuesta exitosa  
-            return response()->json(['message' => 'Reserva creada exitosamente.'], 201);  
-        } catch (\Illuminate\Validation\ValidationException $e) {  
-            // Manejar errores de validación  
-            return response()->json(['errors' => $e->validator->errors()], 422);  
-        } catch (\Exception $e) {  
-            // Manejar otros errores  
-            return response()->json(['error' => 'No se pudo crear la reserva: ' . $e->getMessage()], 500);  
-        }  
-    }  
+        // Creación de la reserva
+        $reserva = Reserva::create([
+            'fecha_creacion' => $validData['fecha_creacion'],
+            'estado' => $validData['estado'],
+            'user_id' => $validData['user_id'],
+        ]);
+
+        // Preparar datos para inserción masiva
+        $detalleData = collect($validData['detalle_reservas'])
+            ->map(function ($det) use ($reserva) {
+                return [
+                    'fecha_entrada' => $det['fecha_entrada'],
+                    'fecha_salida' => $det['fecha_salida'],
+                    'precio' => $det['precio'],
+                    'habitacion_id' => $det['habitacion_id'],
+                    'reserva_id' => $reserva->id,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            })->toArray();
+
+        // Insertar detalles de la reserva
+        DetalleReserva::insert($detalleData);
+
+        // Confirmar transacción
+        DB::commit();
+
+        return response()->json([
+            "reserva" => $reserva->load("detalleReservas"),
+            "message" => "La reserva ha sido registrada correctamente"
+        ], 201);
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'error' => $e->errors(),
+            "message" => "Error en la validación de los datos"
+        ], 409);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
 
     /**
      * Display the specified resource.

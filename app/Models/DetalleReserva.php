@@ -10,7 +10,7 @@ class DetalleReserva extends Model
     use HasFactory;
 
     protected $table = "detalle_reservas";
-    protected $fillable = ['cantidad', 'precio', 'habitacion_id', 'reserva_id'];  // Adjusted fields
+    protected $fillable = ['precio', 'habitacion_id', 'reserva_id'];  // Adjusted fields
 
     // Relación con el modelo Habitacion
     public function habitacion()

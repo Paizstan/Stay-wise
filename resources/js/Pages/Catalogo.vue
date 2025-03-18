@@ -182,7 +182,8 @@ const confirmarReservas = async () => {
             confirmButtonColor: "#7D5A50"
         });
     }
-};    
+};  
+  
 const procesarReserva = () => {
     if (!fechaEntrada.value || !fechaSalida.value) {
         Swal.fire({
