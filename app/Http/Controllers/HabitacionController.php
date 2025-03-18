@@ -119,7 +119,7 @@ class HabitacionController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Habitacion $habitacion)
-    {
+{
     try {
         // Si los datos vienen en un campo 'habitaciones' como JSON, los decodificamos
         $habitacionRequest = $request->input("habitaciones") ? json_decode($request->input("habitaciones"), true) : $request->all();
