@@ -115,8 +115,74 @@ const handleLogout = () => {
     modalReservaVisible.value = true;
 };
 
+const confirmarReservas = async () => {
+    if (!reservas.value.length) {
+        Swal.fire({
+            title: "Error",
+            text: "No hay reservas en el carrito",
+            icon: "error",
+            confirmButtonColor: "#7D5A50"
+        });
+        return;
+    }
 
-    
+    try {
+        // Preparar los datos de la reserva
+        const datosReserva = {
+            fecha_creacion: new Date().toISOString().split('T')[0],
+            estado: 'Recibida', // Cambiado a 'Recibida' para coincidir con el backend
+            pagada: false,
+            user_id: user.id,
+            detalles: reservas.value.map(reserva => ({
+                habitacion_id: reserva.id,
+                fecha_entrada: reserva.fechaEntrada,
+                fecha_salida: reserva.fechaSalida,
+                noches: reserva.noches,
+                precio: reserva.precio,
+            }))
+        };
+
+        console.log('Datos a enviar:', datosReserva); // Para debug
+
+        const response = await axios.post('/api/reservas', datosReserva);
+
+        if (response.status === 201) {
+            await Swal.fire({
+                title: "¡Reserva Confirmada!",
+                html: `
+                    <div class="text-left">
+                        <p class="mb-2">Tu reserva ha sido confirmada exitosamente.</p>
+                        <p class="mb-2">Total pagado: <strong>$${total.value.toFixed(2)}</strong></p>
+                    </div>
+                `,
+                icon: "success",
+                confirmButtonColor: "#7D5A50"
+            });
+
+            limpiarCarrito();
+        }
+    } catch (error) {
+        console.error('Error completo:', error);
+        console.error('Respuesta del servidor:', error.response?.data);
+
+        let errorMessage = "No se pudo procesar la reserva";
+        
+        if (error.response?.data?.errors) {
+            errorMessage = Object.values(error.response.data.errors)
+                .flat()
+                .join('\n');
+        } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        }
+
+        await Swal.fire({
+            title: "Error",
+            text: errorMessage,
+            icon: "error",
+            confirmButtonColor: "#7D5A50"
+        });
+    }
+};    
 const procesarReserva = () => {
     if (!fechaEntrada.value || !fechaSalida.value) {
         Swal.fire({
@@ -390,7 +456,7 @@ onMounted(() => {
             </Swiper>
 
             <!-- Ofertas y Paquetes -->
-            <div class="my-12">
+            <!-- <div class="my-12">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
                     Ofertas y Paquetes
                 </h2>
@@ -423,7 +489,7 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Habitaciones -->
             <div class="my-12" ref="habitacionesSection" id="habitacionesSection">
@@ -496,12 +562,12 @@ onMounted(() => {
                  class="flex items-center justify-between border-b pb-4">
                 <div class="flex items-center space-x-4">
                     <!-- Imagen de la habitación -->
-                    <div class="w-24 h-24 rounded-lg overflow-hidden">
+                    <!-- <div class="w-24 h-24 rounded-lg overflow-hidden">
                         <img :src="`/images/habitacions/${reserva.imagenes?.[0]?.nombre || 'default-room.jpg'}`"
                              :alt="reserva.nombre"
                              class="w-full h-full object-cover"
                              @error="$event.target.src = '/images/default-room.jpg'">
-                    </div>
+                    </div> -->
                     <div>
                         <h3 class="font-semibold text-[#5E3023]">{{ reserva.nombre }}</h3>
                         <p class="text-sm text-gray-600 mb-1">{{ reserva.descripcion }}</p>
