@@ -13,6 +13,9 @@ import {
     faUserPlus,
     faSignOutAlt,
     faShoppingCart,
+    /* faTrash,
+    faCheck,
+    faBed */
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -95,6 +98,19 @@ const opiniones = ref([
             "El mejor lugar para relajarse y disfrutar de unas vacaciones.",
     },
 ]);
+
+const agregarMasHabitaciones = () => {
+    carritoVisible.value = false; // Cierra el carrito
+    nextTick(() => {
+        const habitacionesSection = document.querySelector('#habitacionesSection');
+        if (habitacionesSection) {
+            habitacionesSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+};
 
 const handleLogout = () => {
     router.post(route("logout"));
@@ -278,7 +294,7 @@ const total = computed(() => {
     }, 0);
 });
 
-const agregarMasHabitaciones = () => {
+/* const agregarMasHabitaciones = () => {
     carritoVisible.value = false;
     const habitacionesSection = document.querySelector('#habitacionesSection');
     if (habitacionesSection) {
@@ -287,7 +303,7 @@ const agregarMasHabitaciones = () => {
             block: 'start'
         });
     }
-};
+}; */
 
 onMounted(() => {
     fetchHabitaciones();    
@@ -324,6 +340,10 @@ const ofertas = ref([
         fecha_fin: "2025-04-20"
     }
 ]);
+
+const cerrarCarrito = () => {
+    carritoVisible.value = false;
+};
 
 </script>
 
@@ -594,98 +614,143 @@ const ofertas = ref([
 
            <!-- Carrito de Reservas -->
 <div v-if="carritoVisible" 
-     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl mx-4">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl font-bold text-[#5E3023]">Carrito de Reservas</h2>
-            <button @click="carritoVisible = false" 
-                    class="text-gray-500 hover:text-gray-700">
-                <span class="text-2xl">&times;</span>
-            </button>
+     class="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50 transition-opacity duration-300"
+     @click.self="cerrarCarrito">
+    <div class="bg-white w-full max-w-md h-full overflow-y-auto transform transition-transform duration-300 ease-in-out"
+         :class="{ 'translate-x-0': carritoVisible, 'translate-x-full': !carritoVisible }">
+        <!-- Header del carrito -->
+        <div class="sticky top-0 bg-white px-6 py-4 border-b flex items-center justify-between shadow-sm z-10">
+            <div class="flex items-center space-x-3">
+                <button @click="cerrarCarrito" 
+                        class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2 class="text-xl font-bold text-[#5E3023]">Carrito de Reservas</h2>
+            </div>
+            <div class="relative">
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {{ reservas.length }}
+                </span>
+                <FontAwesomeIcon :icon="faShoppingCart" class="w-6 h-6 text-[#7D5A50]" />
+            </div>
         </div>
 
-        <!-- Lista de reservas -->
-        <div v-if="reservas.length > 0" class="space-y-4">
-            <div v-for="(reserva, index) in reservas" 
-                 :key="index"
-                 class="flex items-center justify-between border-b pb-4">
-                <div class="flex items-center space-x-4">
-                    <!-- Imagen de la habitación -->
-                    <!-- <div class="w-24 h-24 rounded-lg overflow-hidden">
-                        <img :src="`/images/habitacions/${reserva.imagenes?.[0]?.nombre || 'default-room.jpg'}`"
-                             :alt="reserva.nombre"
-                             class="w-full h-full object-cover"
-                             @error="$event.target.src = '/images/default-room.jpg'">
-                    </div> -->
-                    <div>
-                        <h3 class="font-semibold text-[#5E3023]">{{ reserva.nombre }}</h3>
-                        <p class="text-sm text-gray-600 mb-1">{{ reserva.descripcion }}</p>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex items-center space-x-2">
-                                <label class="text-sm">Noches:</label>
-                                <input type="number" 
-                                       v-model="reserva.noches" 
-                                       min="1" 
-                                       class="w-16 px-2 py-1 border rounded"
-                                       @change="calcularTotal">
+        <!-- Contenido del carrito -->
+        <div class="p-6">
+            <!-- Lista de reservas -->
+            <div v-if="reservas.length > 0" class="space-y-4">
+                <TransitionGroup name="list" tag="div" class="space-y-4">
+                    <div v-for="(reserva, index) in reservas" 
+                         :key="reserva.id"
+                         class="bg-white rounded-lg border p-4 shadow-sm transition-all duration-200 hover:shadow-md">
+                        <div class="flex space-x-4">
+                            <div class="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0">
+                                <img :src="`/images/habitacions/${reserva.imagenes?.[0]?.nombre || 'default-room.jpg'}`"
+                                     :alt="reserva.nombre"
+                                     class="w-full h-full object-cover"
+                                     @error="$event.target.src = '/images/default-room.jpg'">
                             </div>
-                            <p class="text-sm">
-                                <span class="text-gray-600">Fechas:</span>
-                                <span class="font-medium">{{ reserva.fechaEntrada }} - {{ reserva.fechaSalida }}</span>
-                            </p>
+                            <div class="flex-grow">
+                                <div class="flex justify-between">
+                                    <h3 class="font-semibold text-[#5E3023]">{{ reserva.nombre }}</h3>
+                                    <button @click="eliminarReserva(index)" 
+                                            class="text-red-500 hover:text-red-700">
+                                        <span class="sr-only">Eliminar</span>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">{{ reserva.fechaEntrada }} - {{ reserva.fechaSalida }}</p>
+                                <div class="flex items-center justify-between mt-2">
+                                    <div class="flex items-center space-x-2">
+                                        <label class="text-sm text-gray-600">Noches:</label>
+                                        <input type="number" 
+                                               v-model="reserva.noches" 
+                                               min="1" 
+                                               class="w-16 px-2 py-1 border rounded text-center"
+                                               @change="calcularTotal">
+                                    </div>
+                                    <p class="font-bold text-[#5E3023]">${{ (reserva.precio * reserva.noches).toFixed(2) }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="text-right">
-                    <p class="font-bold text-[#5E3023]">${{ (reserva.precio * reserva.noches).toFixed(2) }}</p>
-                    <button @click="eliminarReserva(index)"
-                            class="text-red-500 hover:text-red-700 text-sm">
-                        Eliminar
-                    </button>
-                </div>
+                </TransitionGroup>
             </div>
 
-            <!-- Total y botones -->
-            <div class="border-t pt-4">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="font-bold text-lg">Total:</span>
-                    <span class="font-bold text-lg text-[#5E3023]">
-                        ${{ total.toFixed(2) }}
-                    </span>
-                </div>
-                <div class="flex flex-col space-y-3">
-                    <div class="flex space-x-4">
-                        <button @click="confirmarReservas"
-                                class="flex-1 bg-[#7D5A50] text-white py-2 rounded hover:bg-[#5E3023] transition-colors">
-                            Confirmar Reservas
+            <!-- Dentro del contenido del carrito, después de la lista de reservas -->
+            <div v-if="reservas.length > 0" class="border-t border-gray-200 mt-4 pt-4">
+                <button 
+                    @click="agregarMasHabitaciones"
+                    class="w-full py-3 px-4 bg-gray-50 hover:bg-gray-100 text-[#5E3023] rounded-lg flex items-center justify-center space-x-2 transition-colors duration-200"
+                >
+                    <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
+                    <span class="font-medium">Agregar más habitaciones</span>
+                </button>
+            </div>
+
+            <!-- Ajusta el footer del carrito para que sea responsive -->
+            <div v-if="reservas.length > 0" class="sticky bottom-0 bg-white border-t p-4 shadow-lg">
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
+                        <span class="text-gray-600 text-lg">Total:</span>
+                        <span class="text-2xl font-bold text-[#5E3023]">${{ total.toFixed(2) }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button 
+                            @click="limpiarCarrito"
+                            class="px-4 py-3 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center space-x-2"
+                        >
+                            <FontAwesomeIcon :icon="faTrash" class="w-4 h-4" />
+                            <span>Vaciar Carrito</span>
                         </button>
-                        <button @click="limpiarCarrito"
-                                class="flex-1 bg-red-500 text-white py-2 rounded hover:bg-red-700 transition-colors">
-                            Vaciar Carrito
+                        <button 
+                            @click="confirmarReservas"
+                            class="px-4 py-3 bg-[#7D5A50] text-white rounded-lg hover:bg-[#5E3023] transition-colors flex items-center justify-center space-x-2"
+                        >
+                            <FontAwesomeIcon :icon="faCheck" class="w-4 h-4" />
+                            <span>Confirmar</span>
                         </button>
                     </div>
-                    <!-- Botón para agregar más habitaciones -->
-                    <button @click="agregarMasHabitaciones"
-                            class="w-full bg-[#E1C699] text-[#5E3023] py-2 rounded hover:bg-[#d4b483] transition-colors flex items-center justify-center space-x-2">
-                        <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
-                        <span>Agregar más habitaciones</span>
-                    </button>
                 </div>
+            </div>
+
+            <!--Carrito vacío-->
+            <div v-else class="flex flex-col items-center justify-center py-12">
+                <FontAwesomeIcon :icon="faShoppingCart" class="w-16 h-16 text-gray-300 mb-4" />
+                <p class="text-gray-500 mb-4">No hay reservas en el carrito</p>
+                <button @click="cerrarCarrito"
+                        class="bg-[#7D5A50] text-white px-6 py-2 rounded-full hover:bg-[#5E3023] transition-colors flex items-center space-x-2">
+                    <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
+                    <span>Explorar Habitaciones</span>
+                </button>
             </div>
         </div>
 
-                <!-- Carrito vacío -->
-                <div v-else class="text-center py-8">
-                    <p class="text-gray-500 mb-4">No hay reservas en el carrito</p>
-                    <button @click="agregarMasHabitaciones"
-                            class="bg-[#E1C699] text-[#5E3023] px-6 py-2 rounded hover:bg-[#d4b483] transition-colors flex items-center space-x-2 mx-auto">
-                        <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
-                        <span>Agregar habitaciones</span>
+       <!-- Footer del carrito -->
+        <!--<div v-if="reservas.length > 0" class="sticky bottom-0 bg-white border-t p-4 shadow-lg">
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">Total:</span>
+                    <span class="text-xl font-bold text-[#5E3023]">${{ total.toFixed(2) }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <button @click="limpiarCarrito"
+                            class="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                        Vaciar Carrito
+                    </button>
+                    <button @click="confirmarReservas"
+                            class="px-4 py-2 bg-[#7D5A50] text-white rounded-lg hover:bg-[#5E3023] transition-colors">
+                        Confirmar
                     </button>
                 </div>
             </div>
-        </div>
-                    
+        </div>-->
+    </div> 
+</div>      
             <!-- Modal de Reserva -->
             <div v-if="modalReservaVisible" 
                 class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 overflow-y-auto">
