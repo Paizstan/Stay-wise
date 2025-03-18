@@ -90,7 +90,7 @@ class ReservaController extends Controller
             // Validar los datos de entrada
             $request->validate([
                 'fecha_creacion' => 'required|date',
-                'estado' => 'required|in:Recibida,Confirmada,Anulada',  // Changed to 'Recibida', 'Confirmada', 'Anulada'
+                'estado' => 'required|in:Confirmado,Pendiente,Cancelada',
                 'pagada' => 'boolean',
                 'user_id' => 'required|exists:users,id',
             ]);
