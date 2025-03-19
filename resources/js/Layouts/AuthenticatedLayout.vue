@@ -18,7 +18,7 @@ import {
     faUserCircle,
     faSignOutAlt,
     faBed,
-    faBook,
+
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 

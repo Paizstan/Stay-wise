@@ -20,8 +20,8 @@
 
     const estados = {
         'P' :  'Pendientes',
-        'A' :  'Anuladas',
-        'C' :  'Confirmadas'
+        'A' :  'Cancelada',
+        'C' :  'Confirmados'
     };
 
     const filters = ref({
@@ -31,11 +31,12 @@
     const filteredReservas = computed(() => {
     return reservas.value?.filter(reserva => {
         if (estado.value === 'P') return reserva.estado === 'Pendiente';
-        if (estado.value === 'A') return reserva.estado === 'Anulada';
+        if (estado.value === 'A') return reserva.estado === 'Cancelada';
         if (estado.value === 'C') return reserva.estado === 'Confirmado';
         return true;
     });
 });
+
 const fetchReservas = async () => {
     try {
         const response = await axios.get('/api/reservas');
@@ -57,52 +58,66 @@ const fetchReservas = async () => {
     };
 
     const changeReserva = async (reserva, nuevoEstado) => {
-        const estadoTexto = nuevoEstado === 'C' ? 'Confirmar' : 'Anular';
+    const estadoTexto = nuevoEstado === 'C' ? 'Confirmado' : (nuevoEstado === 'A' ? 'Cancelada' : 'Pendiente');
 
-        const result = await Swal.fire({
-            title: `¿Seguro(a) que desea ${estadoTexto} la Reserva No: ${reserva.id}?`,
-            text: "Esta acción no se puede revertir",
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí',
-            cancelButtonText: 'No',
-        });
+    const result = await Swal.fire({
+        title: `¿Seguro(a) que desea ${estadoTexto} la Reserva No: ${reserva.id}?`,
+        text: "Esta acción no se puede revertir",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+    });
 
-        if (result.isConfirmed) {
-            try {
-                const response = await axios.put(`/api/reservas/${reserva.id}`, { estado: nuevoEstado });
+    if (result.isConfirmed) {
+        try {
+            const response = await axios.put(`/api/reservas/${reserva.id}`, {
+                estado: estadoTexto,  // Enviar el estado como 'Confirmada', 'Pendiente', 'Anulada'
+                user_id: reserva.user_id // Asegurarse de que se envía el user_id correctamente
+            });
 
-                if (response.status === 202) {
-                    const index = reservas.value.findIndex(h => h.id === reserva.id);
-                    if (index !== -1) {
-                        reservas.value[index].estado = nuevoEstado;
+            console.log("Respuesta del servidor:", response);
 
-                        // Si se despachó, actualiza la fecha de despacho
-                        if (nuevoEstado === 'C') {
-                            reservas.value[index].fecha_confirmacion = new Date().toISOString().split('T')[0];
-                        }
+            // Verifica si la respuesta del servidor fue exitosa
+            if (response.status === 200 || response.status === 202) {
+                // Actualizar la reserva en la lista sin necesidad de recargar la página
+                const index = reservas.value.findIndex(h => h.id === reserva.id);
+                if (index !== -1) {
+                    reservas.value[index].estado = estadoTexto;
+                    
+                    // Si el estado es "Confirmado", actualiza la fecha de confirmación
+                    if (estadoTexto === 'Confirmado') {
+                        reservas.value[index].fecha_confirmacion = new Date().toISOString().split('T')[0];
                     }
-
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Éxito',
-                        detail: `Reserva ${estadoTexto} correctamente`,
-                        life: 3000
-                    });
                 }
-            } catch (error) {
-                console.error("Error al cambiar estado de la reserva:", error);
+
+                // Mostrar mensaje de éxito
                 toast.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: error.response?.data?.message || "No se pudo cambiar el estado de la reserva",
+                    severity: 'success',
+                    summary: 'Éxito',
+                    detail: `Reserva ${estadoTexto} correctamente`,
                     life: 3000
                 });
             }
+        } catch (error) {
+            console.error("Error al cambiar estado de la reserva:", error);
+            console.log("Detalles del error desde el servidor:", error.response?.data);
+
+            // Mostrar mensaje de error si algo falla
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.response?.data?.message || "No se pudo cambiar el estado de la reserva",
+                life: 3000
+            });
         }
-    };
+    }
+};
+
+
+
 
 
     const formatCurrency = (value) => {
