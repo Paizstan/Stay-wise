@@ -19,9 +19,9 @@ class Reserva extends Model
         'user_id',
     ];
 
-    public function usuario()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'usuario_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function detalleReservas()

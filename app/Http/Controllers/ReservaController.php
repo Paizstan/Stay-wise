@@ -7,6 +7,7 @@ use App\Models\Reserva;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Log;
 
 
 class ReservaController extends Controller
@@ -16,11 +17,12 @@ class ReservaController extends Controller
      */
     public function index()
     {
-        try{
-            return response()->json(Reserva::all());
-        }catch(\Exception $e){
-            return response()->json(['error'=>$e->getMessage()],500);
-
+        try {
+            // Load relationships for reservas
+            $reservas = Reserva::with('detalleReservas', 'user')->get(); // Ensure 'usuario' is loaded
+            return response()->json($reservas);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -105,7 +107,9 @@ class ReservaController extends Controller
     public function show($id)
     {
         try {
-            return response()->json(Reserva::with('user')->findOrFail($id));
+            // Load relationships for a specific reserva
+            $reserva = Reserva::with('detalleReservas.habitacion', 'user')->findOrFail($id);
+            return response()->json($reserva);
         } catch (\Exception $e) {
             return response()->json(['error' => 'No se pudo encontrar la reserva: ' . $e->getMessage()], 500);
         }
@@ -122,31 +126,27 @@ class ReservaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Reserva $reserva)
-    {
-        try {
-            // Validar los datos de entrada
-            $request->validate([
-                'fecha_creacion' => 'required|date',
-                'estado' => 'required|in:Confirmado,Pendiente,Cancelada',
-                'pagada' => 'boolean',
-                'user_id' => 'required|exists:users,id',
-            ]);
-    
-            // Actualizar la reserva con los nuevos valores
-            $reserva->fecha_creacion = $request->fecha_creacion;
-            $reserva->estado = $request->estado;
-            $reserva->pagada = $request->pagada ?? false;
-            $reserva->user_id = $request->user_id;
-            $reserva->save();
-    
-            return response()->json(['message' => 'Reserva actualizada exitosamente.', 'data' => $reserva]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json(['errors' => $e->validator->errors()], 422);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'No se pudo actualizar la reserva: ' . $e->getMessage()], 500);
-        }
+    public function update(Request $request, $id)
+{
+    // Buscar la reserva
+    $reserva = Reserva::find($id);
+
+    if (!$reserva) {
+        return response()->json(['error' => 'Reserva no encontrada'], 404);
     }
+
+    // Validar el nuevo estado
+    $validated = $request->validate([
+        'estado' => 'required|string',
+    ]);
+
+    // Actualizar el estado de la reserva
+    $reserva->estado = $validated['estado'];
+    $reserva->save();
+
+    return response()->json(['message' => 'Estado de la reserva actualizado'], 200);
+}
+
 
     /**
      * Remove the specified resource from storage.
