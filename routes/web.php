@@ -37,7 +37,7 @@ Route::get('/habitaciones', function () {
 })->middleware(['auth', 'verified'])->name('habitaciones');
 
 Route::get('/reservas', function () {
-    return Inertia::render('catalogos/GestionReservas');
+    return Inertia::render('reservas/GestionReservas');
 })->middleware(['auth', 'verified'])->name('reservas');
 
 Route::get('/gestion', function () {

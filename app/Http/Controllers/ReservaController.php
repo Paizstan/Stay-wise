@@ -16,11 +16,12 @@ class ReservaController extends Controller
      */
     public function index()
     {
-        try{
-            return response()->json(Reserva::all());
-        }catch(\Exception $e){
-            return response()->json(['error'=>$e->getMessage()],500);
-
+        try {
+            // Load relationships for reservas
+            $reservas = Reserva::with('detalleReservas', 'user')->get(); // Ensure 'usuario' is loaded
+            return response()->json($reservas);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -105,7 +106,9 @@ class ReservaController extends Controller
     public function show($id)
     {
         try {
-            return response()->json(Reserva::with('user')->findOrFail($id));
+            // Load relationships for a specific reserva
+            $reserva = Reserva::with('detalleReservas.habitacion', 'usuario')->findOrFail($id);
+            return response()->json($reserva);
         } catch (\Exception $e) {
             return response()->json(['error' => 'No se pudo encontrar la reserva: ' . $e->getMessage()], 500);
         }
@@ -128,7 +131,7 @@ class ReservaController extends Controller
             // Validar los datos de entrada
             $request->validate([
                 'fecha_creacion' => 'required|date',
-                'estado' => 'required|in:Confirmado,Pendiente,Cancelada',
+                'estado' => 'required|in:Confirmada,Pendiente,Anulada',
                 'pagada' => 'boolean',
                 'user_id' => 'required|exists:users,id',
             ]);
