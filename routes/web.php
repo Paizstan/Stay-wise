@@ -66,3 +66,7 @@ Route::get('/reportes/reservas', [PDFController::class, 'getReservas'])
     ->middleware(['auth', 'verified'])->name('reportes.reservas');
 
 require __DIR__ . '/auth.php';
+
+
+
+

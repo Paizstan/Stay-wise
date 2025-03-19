@@ -32,6 +32,7 @@ const reserva = ref(null);
 const reservas = ref([]); // Array para almacenar múltiples reservas
 const urlBase = "http://localhost:8000/api/";
 const habitaciones = ref([]);
+//actualice
 
 
 
