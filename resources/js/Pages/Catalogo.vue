@@ -584,11 +584,11 @@ const cerrarCarrito = () => {
                             </SwiperSlide>
                             <!-- Imagen por defecto si no hay imágenes -->
                             <SwiperSlide v-if="!habitacion.imagenes?.length">
-                                <img
+                                <!-- <img
                                     src="/images/default-room.jpg"
                                     :alt="habitacion.nombre"
                                     class="w-full h-48 object-cover"
-                                />
+                                /> -->
                             </SwiperSlide>
                         </Swiper>
                         <div class="p-4">
