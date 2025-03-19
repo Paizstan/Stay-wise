@@ -39,7 +39,7 @@ class PDFController extends Controller
             ORDER BY r.id DESC
         ", [$fecha1, $fecha2, $estado]);
 
-        // Transformar datos para el PDF
+        // Asegurarse de que $reservas no sea null
         $data = collect($reservas)->groupBy('id')->map(function ($reserva) {
             $detalle = $reserva->map(function ($item) {
                 return [
@@ -66,6 +66,11 @@ class PDFController extends Controller
                 'detalle' => $detalle
             ];
         });
+
+        // Asegurarse de que $data no sea null
+        if ($data->isEmpty()) {
+            $data = collect([]);
+        }
 
         // Consulta para ocupación del hotel
         $ocupacion = DB::select("
