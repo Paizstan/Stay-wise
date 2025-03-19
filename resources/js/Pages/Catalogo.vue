@@ -133,6 +133,8 @@ const handleLogout = () => {
 };
 
 const confirmarReservas = async () => {
+    console.log('Reservas actuales antes de confirmar:', reservas.value);
+
     if (!reservas.value.length) {
         Swal.fire({
             title: "Error",
@@ -223,12 +225,23 @@ const procesarReserva = () => {
         return;
     }
 
-    // Calcular número de noches
+    if (!habitacionSeleccionada.value) {
+        console.error("Error: No hay habitación seleccionada");
+        return;
+    }
+
+    console.log("Habitación seleccionada:", habitacionSeleccionada.value);
+
     const entrada = new Date(fechaEntrada.value);
     const salida = new Date(fechaSalida.value);
     const noches = Math.ceil((salida - entrada) / (1000 * 60 * 60 * 24));
 
-    // Añadir al carrito con todos los datos necesarios
+    const precio = Number(habitacionSeleccionada.value.precio);
+    if (isNaN(precio)) {
+        console.error("Error: Precio no válido");
+        return;
+    }
+
     reservas.value.push({
         id: habitacionSeleccionada.value.id,
         nombre: habitacionSeleccionada.value.nombre,
@@ -239,18 +252,19 @@ const procesarReserva = () => {
         fechaEntrada: fechaEntrada.value,
         fechaSalida: fechaSalida.value,
         noches: noches,
-        precio: Number(habitacionSeleccionada.value.precio)
+        precio: precio
     });
 
-    // Cerrar modal y mostrar carrito
+    console.log("Reservas después de agregar:", reservas.value);
+
     modalReservaVisible.value = false;
     carritoVisible.value = true;
-    
-    // Limpiar selección
+
     habitacionSeleccionada.value = null;
     fechaEntrada.value = '';
     fechaSalida.value = '';
 };
+
 
 
 const fetchHabitaciones = async () => {
