@@ -11,10 +11,10 @@ class PDFController extends Controller
     public function getReservas(Request $request)
     {
         // Obtener parámetros
-        $fecha1 = $request->fechainicio ?? now()->startOfMonth()->toDateString();
-        $fecha2 = $request->fechaFinal ?? now()->endOfMonth()->toDateString();
-        $estado = $request->estado ?? 'Confirmado';
-
+        $fecha1 = $request->fechainicio ?? now()->startOfYear()->toDateString(); // Cambiado a inicio de año
+        $fecha2 = $request->fechaFinal ?? now()->endOfYear()->toDateString(); // Cambiado a fin de año
+        $estado = trim($request->estado ?? 'Confirmado'); // Aseguramos que no haya espacios
+    
         // Consulta de reservas
         $reservas = DB::select("
             SELECT 
