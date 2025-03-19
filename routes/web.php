@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\HabitacionController;
 
 
 /*Route::get('/', function () {
@@ -48,7 +49,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reporte/vista', [ReporteController::class, 'vistaReporte'])->name('reporte.vista');  // Vista previa en Vue
     Route::get('/reporte/pdf', [ReporteController::class, 'generarPDF'])->name('reporte.pdf'); // Descargar PDF
     Route::get('/reporte/datos', [ReservaController::class, 'getDatos']); // Ensure this route points to ReservaController
+    
 });
 
-
+Route::post('api/habitaciones/{habitacion}', [HabitacionController::class, 'update']);
 require __DIR__.'/auth.php';

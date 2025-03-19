@@ -25,7 +25,7 @@ import axios from "axios"; */
 onMounted(() => {
     fetchHabitaciones();
 });
-
+const imagesPreview = ref([]);//array para hacer un preview
 const toast = useToast();
 const dt = ref();
 const habitaciones = ref([]); //arreglo de habitaciones
@@ -76,62 +76,79 @@ const fetchHabitaciones = async () => {
     }
 };
 
+/* formData.append('nombre', habitacion.value.nombre);
+        formData.append('tipo', habitacion.value.tipo);
+        formData.append('capacidad', habitacion.value.capacidad);
+        formData.append('descripcion', habitacion.value.descripcion);
+        formData.append('precio', habitacion.value.precio); */
+
 const saveOrUpdate = async () => {
     submitted.value = true;
 
     if (habitacion?.value.nombre?.trim()) {
+        const formData = new FormData();
+
+        // Agregar los datos de la habitación al FormData
+        for (const [key, value] of Object.entries(habitacion.value)) {
+            if (value !== null && value !== undefined) {
+                formData.append(key, value);
+                console.log(key, value);
+            }
+        }
+
+        // Agregar imágenes al FormData
+        imagenes.value.forEach((imagen) => {
+            formData.append("imagenes[]", imagen.file);
+        });
+
+        // Verificar los datos que se están enviando
+        console.log([...formData.entries()]);
+
         try {
-            const formData = new FormData();
-            formData.append('nombre', habitacion.value.nombre);
-            formData.append('tipo', habitacion.value.tipo);
-            formData.append('capacidad', habitacion.value.capacidad);
-            formData.append('descripcion', habitacion.value.descripcion);
-            formData.append('precio', habitacion.value.precio);
-
-            imagenes.value.forEach((img, index) => {
-                formData.append(`imagenes[${index}]`, img.file);
-            });
-
+            let response;
             if (habitacion.value.id) {
-                // Actualizar la habitación existente
-                await axios.post(`${url}/${habitacion.value.id}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
+                // Actualizar la habitación usando POST con _method=PUT
+                response = await axios.post(`${url}/${habitacion.value.id}?_method=PUT`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                });
+
+                if (response.status === 200) {
+                    const { habitacion: updatedHabitacion, message } = response.data;
+                    const index = findIndexById(updatedHabitacion.id);
+                    if (index !== -1) {
+                        // Actualizar de manera reactiva
+                        habitaciones.value.splice(index, 1, updatedHabitacion);
                     }
-                });
-                toast.add({
-                    severity: "success",
-                    summary: "Successful",
-                    detail: "Habitacion Updated",
-                    life: 3000,
-                });
+                    toast.add({ severity: 'success', summary: 'Actualizado!', detail: message, life: 3000 });
+                }
+                dialog.value = false;
             } else {
-                // Crear una nueva habitación
-                await axios.post(url, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
+                // Agregar una nueva Habitación
+                response = await axios.post(url, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
                 });
-                toast.add({
-                    severity: "success",
-                    summary: "Successful",
-                    detail: "Habitación Created",
-                    life: 3000,
-                });
+
+                if (response.status === 201) {
+                    const { habitacion: nuevaHabitacion, message } = response.data;
+                    // Agregar la nueva habitación de manera reactiva
+                    habitaciones.value.unshift(nuevaHabitacion);
+                    toast.add({ severity: 'success', summary: 'Registrado!', detail: message, life: 3000 });
+                }
+                dialog.value = false;
+                habitacion.value = {};
             }
 
-            fetchHabitaciones(); // Actualizar la lista de habitaciones
-            dialog.value = false;
-            habitacion.value = {};
             imagenes.value = [];
-        } catch (error) {
-            console.error("Error al guardar la habitación", error);
-            toast.add({
-                severity: "error",
-                summary: "Error",
-                detail: "No se pudo guardar la habitación",
-                life: 3000,
-            });
+            imagesPreview.value = [];
+        } catch (err) {
+            if (err.response && err.response.status === 409) {
+                toast.add({ severity: 'warn', summary: 'Conflicto!', detail: err.response.data.message, life: 3000 });
+            } else if (err.response && err.response.status === 500) {
+                const { error } = err.response.data;
+                toast.add({ severity: 'error', summary: 'Error!', detail: error, life: 3000 });
+            } else {
+                console.log('Error inesperado', err);
+            }
         }
     }
 };
@@ -152,6 +169,7 @@ const onImageSelect = (event) => {
 
 const editHabitacion = (habit) => {
     habitacion.value = { ...habit };
+    imagesPreview.value = habit.imagenes.map(img => `images/habitacions/${img.nombre}`);
     dialog.value = true;
 };
 const confirmDeleteHabitacion = (habit) => {
@@ -354,7 +372,7 @@ const btnTitle = computed(() =>
                                 style="min-width: 8rem"
                             >
                                 <template #body="slotProps">
-                                    {{ formatCurrency(slotProps.data.precio) }}
+                                    ${{ formatCurrency(slotProps.data.precio) }}
                                 </template>
                             </Column>
                             <Column
@@ -411,28 +429,15 @@ const btnTitle = computed(() =>
                                     >Nombre es requerido.</small
                                 >
                             </div>
-                            <div class="col-span-6">
-                                <label for="tipo">Tipo</label>
-                                <Select v-model="habitacion.tipo":options="['Individual','Doble','Doble estándar', 'Apartamento','Suite',
-                                        'Suite ejecutiva',
-                                        'Suite presidencial',
-                                    ]"
-                                    class="w-full"
-                                />
-                                <small v-if="submitted && !habitacion.tipo" class="text-red-500">Seleccione un Tipo</small>
+                            <div>
+                                <label for="tipo" class="block font-bold mb-2">Tipo</label>
+                                <InputText id="tipo" v-model="habitacion.tipo" required="true" class="w-full" />
+                                <small class="p-error text-red-500" v-if="submitted && !habitacion.tipo">Tipo es requerido.</small>
                             </div>
-                            <div class="col-span-6">
-                                <label for="capacidad">Capacidad</label>
-                                <Select
-                                    v-model="habitacion.capacidad"
-                                    :options="['1', '2', '4', '6']"
-                                    class="w-full"
-                                />
-                                <small
-                                    v-if="submitted && !habitacion.capacidad"
-                                    class="text-red-500"
-                                    >Seleccione la capacidad de la Habitacion</small
-                                >
+                            <div>
+                                    <label for="capacidad" class="block font-bold mb-2">Capacidad</label>
+                                    <InputText id="capacidad" v-model="habitacion.capacidad" required="true" class="w-full" />
+                                    <small class="p-error text-red-500" v-if="submitted && !habitacion.capacidad">Capacidad es requerida.</small>
                             </div>
                             <div>
                                 <label

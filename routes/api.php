@@ -14,6 +14,9 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('habitaciones',HabitacionController::class);
 Route::apiResource('reservas',ReservaController::class);
 Route::get('/reporte/reservas-mes', [ReporteController::class, 'reservasPorMes']);
+Route::post('api/habitaciones/{habitacion}', [HabitacionController::class, 'update']);
+
+
 
 
 

@@ -33,43 +33,25 @@ class HabitacionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request) 
+    public function store(Request $request)  
     {
-        try {
-            // Si los datos vienen en un campo 'habitaciones' como JSON, los decodificamos
-            $habitacionRequest = $request->input("habitaciones") ? json_decode($request->input("habitaciones"), true) : $request->all();
-
+        try {           
             // Validación de los datos
-            $validator = Validator::make($habitacionRequest, [
+            $request->validate([
                 "nombre" => "required|string",
-                "tipo" => "required|in:Individual,Doble,Doble estándar,Apartamento,Suite,Suite ejecutiva,Suite presidencial",
-                "capacidad" => "required|in:1,2,4,6",
+                "tipo" => "required|string",
+                "capacidad" => "required|numeric",
                 "descripcion" => "nullable|string",
                 "precio" => "required|numeric",
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            }
-
-            // Verificar si la habitación ya existe en la base de datos
-            $existe = Habitacion::where('nombre', $habitacionRequest["nombre"])
-                ->where('tipo', $habitacionRequest["tipo"])
-                ->where('capacidad', $habitacionRequest["capacidad"])
-                ->first();
-
-            if ($existe) {
-                return response()->json(['message' => 'Ya existe una habitación con estos datos'], 409);
-            }
-
+            ]);        
             // Crear la instancia de Habitacion
-            $habitacion = Habitacion::create([
-                "nombre" => $habitacionRequest["nombre"],
-                "tipo" => $habitacionRequest["tipo"],
-                "capacidad" => $habitacionRequest["capacidad"],
-                "descripcion" => $habitacionRequest["descripcion"] ?? null,
-                "precio" => $habitacionRequest["precio"]
-            ]);
+            $habitacion = new Habitacion();
+            $habitacion->nombre = $request->input("nombre");
+            $habitacion->tipo = $request->input("tipo");
+            $habitacion->capacidad = $request->input("capacidad");
+            $habitacion->descripcion = $request->input("descripcion") ?? null;
+            $habitacion->precio = $request->input("precio");
+            $habitacion->save(); // Guardar en la tabla de habitaciones
 
             // Manejo de imágenes
             if ($request->hasFile('imagenes')) {
@@ -83,7 +65,6 @@ class HabitacionController extends Controller
                     ]);
                 }
             }
-
             return response()->json([
                 "habitacion" => $habitacion->load('imagenes'),
                 "message" => "Habitación registrada con éxito...!"
@@ -118,66 +99,62 @@ class HabitacionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Habitacion $habitacion)
-{
-    try {
-        // Si los datos vienen en un campo 'habitaciones' como JSON, los decodificamos
-        $habitacionRequest = $request->input("habitaciones") ? json_decode($request->input("habitaciones"), true) : $request->all();
+    public function update(Request $request, $id)
+    {
+        try {
+            // Buscar la habitación por ID
+            $habitacion = Habitacion::findOrFail($id);
 
-        // Validación de los datos
-        $validator = Validator::make($habitacionRequest, [
-            "nombre" => "required|string",
-            "tipo" => "required|in:Individual,Doble,Doble estándar,Apartamento,Suite,Suite ejecutiva,Suite presidencial",
-            "capacidad" => "required|in:1,2,4,6",
-            "descripcion" => "nullable|string",
-            "precio" => "required|numeric",
-        ]);
+            // Validar los datos de la solicitud
+            $request->validate([
+                'nombre' => 'required|string',
+                'tipo' => 'required|string',
+                'capacidad' => 'required|numeric',
+                'descripcion' => 'nullable|string',
+                'precio' => 'required|numeric',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
+            // Actualizar la habitación con los nuevos datos
+            $habitacion->update([
+                'nombre' => $request->nombre,
+                'tipo' => $request->tipo,
+                'capacidad' => $request->capacidad,
+                'descripcion' => $request->descripcion,
+                'precio' => $request->precio,
+            ]);
 
-        // Actualizar los datos de la habitación
-        $habitacion->update([
-            "nombre" => $habitacionRequest["nombre"],
-            "tipo" => $habitacionRequest["tipo"],
-            "capacidad" => $habitacionRequest["capacidad"],
-            "descripcion" => $habitacionRequest["descripcion"] ?? null,
-            "precio" => $habitacionRequest["precio"]
-        ]);
-
-        // Manejo de imágenes
-        if ($request->hasFile('imagenes')) {
-            // Eliminar imágenes antiguas
-            foreach ($habitacion->imagenes as $imagen) {
-                $imagePath = public_path('images/habitacions/' . $imagen->nombre);
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
+            // Eliminar imágenes existentes
+            if ($habitacion->imagenes) {
+                foreach ($habitacion->imagenes as $image) {
+                    $imagePath = public_path('images/habitacions/' . $image->nombre);
+                    if (file_exists($imagePath)) {
+                        unlink($imagePath); // Eliminar archivo físico
+                    }
+                    $image->delete(); // Eliminar registro en la base de datos
                 }
-                $imagen->delete();
             }
 
-            // Guardar nuevas imágenes
-            foreach ($request->file('imagenes') as $img) {
-                $imageName = time() . '_' . $img->getClientOriginalName();
-                $img->move(public_path('images/habitacions/'), $imageName);
+            // Agregar nuevas imágenes si están presentes en la solicitud
+            if ($request->hasFile('imagenes')) {
+                foreach ($request->file('imagenes') as $img) {
+                    $imageName = time() . '_' . $img->getClientOriginalName();
+                    $img->move(public_path('images/habitacions/'), $imageName);
 
-                Imagen::create([
-                    'nombre' => $imageName,
-                    'habitacion_id' => $habitacion->id
-                ]);
+                    $image = new Imagen();
+                    $image->nombre = $imageName;
+                    $image->habitacion_id = $habitacion->id;
+                    $image->save();
+                }
             }
+
+            // Obtener la habitación actualizada con sus relaciones
+            $habitacionActualizada = Habitacion::with(['imagenes'])->findOrFail($habitacion->id);
+
+            return response()->json(['habitacion' => $habitacionActualizada, 'message' => 'Habitación actualizada correctamente'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return response()->json([
-            "habitacion" => $habitacion->load('imagenes'),
-            "message" => "Habitación actualizada con éxito...!"
-        ]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => $e->getMessage()], 500);
     }
-}
-
 
     /**
      * Remove the specified resource from storage.
