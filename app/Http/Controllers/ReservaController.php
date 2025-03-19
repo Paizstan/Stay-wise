@@ -38,7 +38,7 @@ class ReservaController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+    {   //Cambio Staley
     try {
         // Validación de datos
         $validData = $request->validate([
