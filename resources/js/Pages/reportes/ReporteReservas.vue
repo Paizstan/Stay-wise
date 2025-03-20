@@ -6,16 +6,29 @@ import { ref } from "vue";
 const fechaInicio = ref("");
 const fechaFinal = ref("");
 const estado = ref("Confirmado");
+const cargando = ref(false); // Mensaje de generndo reporte
+const mensajeError = ref(""); // Estado para mostrar mensajes de error
 
 const generarReporte = () => {
+    if (!fechaInicio.value || !fechaFinal.value) {
+        mensajeError.value = "Por favor, ingrese ambas fechas para generar el reporte.";
+        return;
+    }
+
+    mensajeError.value = "";
+    cargando.value = true;
     const params = new URLSearchParams({
         fechainicio: fechaInicio.value,
         fechaFinal: fechaFinal.value,
         estado: estado.value,
     });
 
-    // Abrir el reporte en una nueva ventana
-    window.open(`/reportes/reservas?${params.toString()}`, "_blank");
+    setTimeout(() => {
+        window.open(`/reportes/reservas?${params.toString()}`, "_blank");
+        cargando.value = false;
+        fechaInicio.value = "";
+        fechaFinal.value = "";
+    }, 2000); // simulacion de
 };
 </script>
 
@@ -35,6 +48,8 @@ const generarReporte = () => {
                     <h2 class="text-xl font-bold mb-6 text-[#5E3023]">
                         Generar Reporte de Reservas
                     </h2>
+
+                    <div v-if="mensajeError" class="text-red-600 mb-4">{{ mensajeError }}</div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
@@ -76,8 +91,10 @@ const generarReporte = () => {
                         <button
                             @click="generarReporte"
                             class="px-6 py-2 bg-[#7D5A50] text-white rounded-md hover:bg-[#5E3023] transition-colors duration-200 flex items-center space-x-2"
+                            :disabled="cargando"
                         >
                             <svg
+                                v-if="!cargando"
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="h-5 w-5"
                                 fill="none"
@@ -91,7 +108,8 @@ const generarReporte = () => {
                                     d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
                                 />
                             </svg>
-                            <span>Generar PDF</span>
+                            <span v-if="cargando">Generando reporte...</span>
+                            <span v-else>Generar PDF</span>
                         </button>
                     </div>
                 </div>

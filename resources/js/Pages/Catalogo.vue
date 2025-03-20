@@ -32,6 +32,7 @@ const reserva = ref(null);
 const reservas = ref([]); // Array para almacenar múltiples reservas
 const urlBase = "http://localhost:8000/api/";
 const habitaciones = ref([]);
+//actualice
 
 
 
@@ -132,6 +133,8 @@ const handleLogout = () => {
 };
 
 const confirmarReservas = async () => {
+    console.log('Reservas actuales antes de confirmar:', reservas.value);
+
     if (!reservas.value.length) {
         Swal.fire({
             title: "Error",
@@ -222,12 +225,23 @@ const procesarReserva = () => {
         return;
     }
 
-    // Calcular número de noches
+    if (!habitacionSeleccionada.value) {
+        console.error("Error: No hay habitación seleccionada");
+        return;
+    }
+
+    console.log("Habitación seleccionada:", habitacionSeleccionada.value);
+
     const entrada = new Date(fechaEntrada.value);
     const salida = new Date(fechaSalida.value);
     const noches = Math.ceil((salida - entrada) / (1000 * 60 * 60 * 24));
 
-    // Añadir al carrito con todos los datos necesarios
+    const precio = Number(habitacionSeleccionada.value.precio);
+    if (isNaN(precio)) {
+        console.error("Error: Precio no válido");
+        return;
+    }
+
     reservas.value.push({
         id: habitacionSeleccionada.value.id,
         nombre: habitacionSeleccionada.value.nombre,
@@ -238,18 +252,23 @@ const procesarReserva = () => {
         fechaEntrada: fechaEntrada.value,
         fechaSalida: fechaSalida.value,
         noches: noches,
-        precio: Number(habitacionSeleccionada.value.precio)
+        precio: precio
     });
 
-    // Cerrar modal y mostrar carrito
+    console.log("Reservas después de agregar:", reservas.value);
+
     modalReservaVisible.value = false;
     carritoVisible.value = true;
-    
-    // Limpiar selección
+
     habitacionSeleccionada.value = null;
     fechaEntrada.value = '';
     fechaSalida.value = '';
 };
+
+//import { ref } from 'vue';
+
+const modalVisible = ref(false);
+
 
 
 const fetchHabitaciones = async () => {
@@ -415,6 +434,14 @@ const cerrarCarrito = () => {
                     </template>
                 </div>
 
+            <Dialog v-model:visible="modalVisible" header="Más Información" :modal="true">
+            <p>Estamos trabajando para darte un mejor servicio.</p>
+            <template #footer>
+            <Button  class="text-white px-6 py-2 rounded mt-4 hover:bg-[#5E3023]"
+            style="background-color: #7D5A50;"label="Cerrar" icon="pi pi-times" @click="modalVisible = false" />
+            </template>
+            </Dialog>
+
             
 
                 <!-- Botón menú móvil -->
@@ -520,46 +547,47 @@ const cerrarCarrito = () => {
             </Swiper>
 
             
-             <!-- Ofertas y Paquetes -->
-<div class="my-12">
-    <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
-        Ofertas y Paquetes
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div
-            v-for="oferta in ofertas"
-            :key="oferta.id"
-            class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
-        >
-            <img
-                :src="oferta.imagen"
-                :alt="oferta.nombre"
-                class="w-full h-48 object-cover"
-            />
-            <div class="p-4">
-                <h3 class="text-xl font-semibold text-[#5E3023]">
-                    {{ oferta.nombre }}
-                </h3>
-                <p class="text-[#7D5A50]">
-                    {{ oferta.descripcion }}
-                </p>
-                <p class="text-2xl font-bold text-[#5E3023] mt-2">
-                    ${{ oferta.precio }}/noche
-                </p>
-                <p class="text-sm text-gray-600 mt-1">
-                    Válido del {{ new Date(oferta.fecha_inicio).toLocaleDateString() }} 
-                    al {{ new Date(oferta.fecha_fin).toLocaleDateString() }}
-                </p>
-                <button
-                    @click="reservarHabitacion(oferta)"
-                    class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
-                >
-                    Reservar Ahora
-                </button>
+            <!-- Ofertas y Paquetes -->
+            <div class="my-12">
+                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+                    Ofertas y Paquetes
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        v-for="oferta in ofertas"
+                        :key="oferta.id"
+                        class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+                    >
+                        <img
+                            :src="oferta.imagen"
+                            :alt="oferta.nombre"
+                            class="w-full h-48 object-cover"
+                        />
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-[#5E3023]">
+                                {{ oferta.nombre }}
+                            </h3>
+                            <p class="text-[#7D5A50]">
+                                {{ oferta.descripcion }}
+                            </p>
+                            <p class="text-2xl font-bold text-[#5E3023] mt-2">
+                                ${{ oferta.precio }}/noche
+                            </p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Válido del {{ new Date(oferta.fecha_inicio).toLocaleDateString() }} 
+                                al {{ new Date(oferta.fecha_fin).toLocaleDateString() }}
+                            </p>
+                            <button
+                                @click="reservarHabitacion(oferta)"
+                                class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
+                            >
+                                Reservar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
+            
             <!-- Habitaciones -->
             <div class="my-12" ref="habitacionesSection" id="habitacionesSection">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
@@ -584,11 +612,11 @@ const cerrarCarrito = () => {
                             </SwiperSlide>
                             <!-- Imagen por defecto si no hay imágenes -->
                             <SwiperSlide v-if="!habitacion.imagenes?.length">
-                                <img
+                                <!-- <img
                                     src="/images/default-room.jpg"
                                     :alt="habitacion.nombre"
                                     class="w-full h-48 object-cover"
-                                />
+                                /> -->
                             </SwiperSlide>
                         </Swiper>
                         <div class="p-4">
@@ -600,6 +628,9 @@ const cerrarCarrito = () => {
                             </p>
                             <p class="text-2xl font-bold text-[#5E3023] mt-2">
                                 ${{ habitacion.precio }}/noche
+                            </p>
+                            <p class="text-2xl font-bold text-[#5E3023]">
+                                {{ habitacion.tipo }}
                             </p>
                             <button
                                 @click="reservarHabitacion(habitacion)"
@@ -613,33 +644,33 @@ const cerrarCarrito = () => {
             </div>
 
            <!-- Carrito de Reservas -->
-<div v-if="carritoVisible" 
-     class="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50 transition-opacity duration-300"
-     @click.self="cerrarCarrito">
-    <div class="bg-white w-full max-w-md h-full overflow-y-auto transform transition-transform duration-300 ease-in-out"
-         :class="{ 'translate-x-0': carritoVisible, 'translate-x-full': !carritoVisible }">
-        <!-- Header del carrito -->
-        <div class="sticky top-0 bg-white px-6 py-4 border-b flex items-center justify-between shadow-sm z-10">
-            <div class="flex items-center space-x-3">
-                <button @click="cerrarCarrito" 
-                        class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <h2 class="text-xl font-bold text-[#5E3023]">Carrito de Reservas</h2>
-            </div>
-            <div class="relative">
-                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {{ reservas.length }}
-                </span>
-                <FontAwesomeIcon :icon="faShoppingCart" class="w-6 h-6 text-[#7D5A50]" />
-            </div>
-        </div>
+            <div v-if="carritoVisible" 
+                class="fixed inset-0 bg-black bg-opacity-50 flex justify-end z-50 transition-opacity duration-300"
+                @click.self="cerrarCarrito">
+                <div class="bg-white w-full max-w-md h-full overflow-y-auto transform transition-transform duration-300 ease-in-out"
+                    :class="{ 'translate-x-0': carritoVisible, 'translate-x-full': !carritoVisible }">
+                    <!-- Header del carrito -->
+                    <div class="sticky top-0 bg-white px-6 py-4 border-b flex items-center justify-between shadow-sm z-10">
+                        <div class="flex items-center space-x-3">
+                            <button @click="cerrarCarrito" 
+                                    class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <h2 class="text-xl font-bold text-[#5E3023]">Carrito de Reservas</h2>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ reservas.length }}
+                            </span>
+                            <FontAwesomeIcon :icon="faShoppingCart" class="w-6 h-6 text-[#7D5A50]" />
+                        </div>
+                    </div>
 
         <!-- Contenido del carrito -->
         <div class="p-6">
-            <!-- Lista de reservas -->
+            <!-- Listado de reservas -->
             <div v-if="reservas.length > 0" class="space-y-4">
                 <TransitionGroup name="list" tag="div" class="space-y-4">
                     <div v-for="(reserva, index) in reservas" 
@@ -681,7 +712,7 @@ const cerrarCarrito = () => {
                 </TransitionGroup>
             </div>
 
-            <!-- Dentro del contenido del carrito, después de la lista de reservas -->
+             <!--Mas habitaciones-->
             <div v-if="reservas.length > 0" class="border-t border-gray-200 mt-4 pt-4">
                 <button 
                     @click="agregarMasHabitaciones"
@@ -692,7 +723,7 @@ const cerrarCarrito = () => {
                 </button>
             </div>
 
-            <!-- Ajusta el footer del carrito para que sea responsive -->
+            <!-- Ajusta el footer del carrito para que se muestre lo responsivo -->
             <div v-if="reservas.length > 0" class="sticky bottom-0 bg-white border-t p-4 shadow-lg">
                 <div class="space-y-4">
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -718,39 +749,19 @@ const cerrarCarrito = () => {
                 </div>
             </div>
 
-            <!--Carrito vacío-->
-            <div v-else class="flex flex-col items-center justify-center py-12">
-                <FontAwesomeIcon :icon="faShoppingCart" class="w-16 h-16 text-gray-300 mb-4" />
-                <p class="text-gray-500 mb-4">No hay reservas en el carrito</p>
-                <button @click="cerrarCarrito"
-                        class="bg-[#7D5A50] text-white px-6 py-2 rounded-full hover:bg-[#5E3023] transition-colors flex items-center space-x-2">
-                    <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
-                    <span>Explorar Habitaciones</span>
-                </button>
-            </div>
-        </div>
-
-       <!-- Footer del carrito -->
-        <!--<div v-if="reservas.length > 0" class="sticky bottom-0 bg-white border-t p-4 shadow-lg">
-            <div class="space-y-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">Total:</span>
-                    <span class="text-xl font-bold text-[#5E3023]">${{ total.toFixed(2) }}</span>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <button @click="limpiarCarrito"
-                            class="px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
-                        Vaciar Carrito
-                    </button>
-                    <button @click="confirmarReservas"
-                            class="px-4 py-2 bg-[#7D5A50] text-white rounded-lg hover:bg-[#5E3023] transition-colors">
-                        Confirmar
-                    </button>
-                </div>
-            </div>
-        </div>-->
-    </div> 
-</div>      
+                        <!--Carrito vacío-->
+                        <div v-else class="flex flex-col items-center justify-center py-12">
+                            <FontAwesomeIcon :icon="faShoppingCart" class="w-16 h-16 text-gray-300 mb-4" />
+                            <p class="text-gray-500 mb-4">No hay reservas en el carrito</p>
+                            <button @click="cerrarCarrito"
+                                    class="bg-[#7D5A50] text-white px-6 py-2 rounded-full hover:bg-[#5E3023] transition-colors flex items-center space-x-2">
+                                <FontAwesomeIcon :icon="faBed" class="w-5 h-5" />
+                                <span>Explorar Habitaciones</span>
+                            </button>
+                        </div>
+                    </div>
+                </div> 
+            </div>      
             <!-- Modal de Reserva -->
             <div v-if="modalReservaVisible" 
                 class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 overflow-y-auto">
@@ -846,7 +857,9 @@ const cerrarCarrito = () => {
                         </div>
                     </div>
                 </div>
-            </div>         <!-- Eventos y Celebraciones -->
+            </div>        
+            
+            <!-- Eventos y Celebraciones -->
             <div class="my-12">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
                     Eventos & Celebraciones
@@ -868,11 +881,12 @@ const cerrarCarrito = () => {
                             <p class="text-[#7D5A50]">
                                 {{ evento.descripcion }}
                             </p>
-                            <button
-                                class="bg-[#7D5A50] text-white px-6 py-2 rounded mt-4 hover:bg-[#5E3023]"
-                            >
-                                Más Información
-                            </button>
+                            <Button
+                                label="Más Información"
+                                 class="text-white px-6 py-2 rounded mt-4 hover:bg-[#5E3023]"
+                                 style="background-color: #7D5A50;"
+                                @click="modalVisible = true"
+                            />
                         </div>
                     </div>
                 </div>
