@@ -151,7 +151,7 @@ const saveOrUpdate = async () => {
             }
         }
     }
-};
+}; 
 
 const onImageSelect = (event) => {
     const files = event.files;
@@ -180,7 +180,7 @@ const viewImages = (habit) => {
     habitacion.value = {...habit};        
     showImagesDialog.value = true;
 };
-    const deleteHabitacion = async () => {
+const deleteHabitacion = async () => {
     try {
         const response = await axios.delete(`${url}/${habitacion.value.id}`);
         if (response.status === 200 || response.status === 204 || response.status === 205) {
@@ -189,7 +189,10 @@ const viewImages = (habit) => {
             toast.add({ severity: 'success', summary: 'Habitación eliminada', detail: message || 'La habitación ha sido eliminada con éxito', life: 3000 });
         }
     } catch (err) {
-        if (err.response && (err.response.status === 500 || err.response.status === 409)) {
+        if (err.response && err.response.status === 409) {
+            const { error } = err.response.data;
+            toast.add({ severity: 'warn', summary: 'No se puede eliminar', detail: error, life: 3000 });
+        } else if (err.response && err.response.status === 500) {
             const { error } = err.response.data;
             toast.add({ severity: 'error', summary: 'Error', detail: error, life: 3000 });
         } else {
@@ -198,7 +201,7 @@ const viewImages = (habit) => {
     }
     deleteHabitacionDialog.value = false;
     habitacion.value = {};
-    };
+};
 const findIndexById = (id) => {
     let index = -1;
     for (let i = 0; i < habitaciones.value.length; i++) {
@@ -263,7 +266,7 @@ const btnTitle = computed(() =>
     habitacion.value.id ? "Actualizar" : "Guardar"
 );
 </script>
-
+ 
 <template>
     <Head title="Habitaciones" />
 

@@ -6,11 +6,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ReservaController;
-<<<<<<< HEAD
 use App\Http\Controllers\HabitacionController;
-=======
 use App\Http\Controllers\PDFController;
->>>>>>> ae1b1f003e48e413f4c29b0632e637f4625bbe23
 
 
 /*Route::get('/', function () {
@@ -52,7 +49,7 @@ Route::get('/gestion', function () {
     Route::get('/reporte/vista', [ReporteController::class, 'vistaReporte'])->name('reporte.vista');  // Vista previa en Vue
     Route::get('/reporte/pdf', [ReporteController::class, 'generarPDF'])->name('reporte.pdf'); // Descargar PDF
     Route::get('/reporte/datos', [ReservaController::class, 'getDatos']); // Ensure this route points to ReservaController
-<<<<<<< HEAD
+
     
 });
 
@@ -69,4 +66,3 @@ Route::get('/reportes/reservas', [PDFController::class, 'getReservas'])
     ->middleware(['auth', 'verified'])->name('reportes.reservas');
 
 require __DIR__ . '/auth.php';
->>>>>>> ae1b1f003e48e413f4c29b0632e637f4625bbe23

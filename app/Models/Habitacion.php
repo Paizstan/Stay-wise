@@ -15,4 +15,8 @@ class Habitacion extends Model
         return $this->hasMany(Imagen::class);
     
     }
+    public function detalleReservas()
+    {
+        return $this->hasMany(DetalleReserva::class);
+    }
 }

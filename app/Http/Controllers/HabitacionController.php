@@ -94,7 +94,7 @@ class HabitacionController extends Controller
     public function edit(Habitacion $habitacion)
     {
         //
-    }
+    } 
 
     /**
      * Update the specified resource in storage.
@@ -122,7 +122,7 @@ class HabitacionController extends Controller
                 'descripcion' => $request->descripcion,
                 'precio' => $request->precio,
             ]);
-
+ 
             // Eliminar imágenes existentes
             if ($habitacion->imagenes) {
                 foreach ($habitacion->imagenes as $image) {
@@ -158,27 +158,32 @@ class HabitacionController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     */
-    public function destroy($id)
-    {
-        try {
-            $habitacion = Habitacion::findOrFail($id);
+     */    
+public function destroy($id)
+{
+    try {
+        $habitacion = Habitacion::findOrFail($id);
 
-            foreach ($habitacion->imagenes as $image) {
-                $imagePath = public_path('images/habitacions/' . $image->nombre);
-                if (file_exists($imagePath)) {
-                    unlink($imagePath);
-                }
-            }
-            // Eliminamos las imágenes de la base de datos
-            $habitacion->imagenes()->delete();
-            // Eliminamos la habitación
-            if ($habitacion->delete()) {
-                return response()->json(["message" => "Habitación eliminado"], 200);
-            }
-            return response()->json(["message" => "Ocurrió un error al eliminar la Habitación"], 409);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+        // Verificar si la habitación tiene reservas
+        if ($habitacion->detalleReservas()->count() > 0) {
+            return response()->json(['error' => 'La habitación tiene reservas y no se puede eliminar.'], 409);
         }
+
+        // Eliminar imágenes asociadas
+        foreach ($habitacion->imagenes as $image) {
+            $imagePath = public_path('images/habitacions/' . $image->nombre);
+            if (file_exists($imagePath)) {
+                unlink($imagePath); // Eliminar archivo físico
+            }
+            $image->delete(); // Eliminar registro en la base de datos
+        }
+
+        // Eliminar la habitación
+        $habitacion->delete();
+
+        return response()->json(['message' => 'Habitación eliminada correctamente'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
     }
+}
 }
