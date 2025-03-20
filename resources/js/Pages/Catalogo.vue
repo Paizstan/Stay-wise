@@ -587,6 +587,7 @@ const cerrarCarrito = () => {
                     </div>
                 </div>
             </div>
+            
             <!-- Habitaciones -->
             <div class="my-12" ref="habitacionesSection" id="habitacionesSection">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
