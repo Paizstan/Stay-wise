@@ -36,7 +36,7 @@ class PDFController extends Controller
             INNER JOIN habitaciones h ON dr.habitacion_id = h.id
             WHERE DATE(r.fecha_creacion) BETWEEN ? AND ?
             AND TRIM(r.estado) = ?
-            ORDER BY r.id DESC
+            ORDER BY r.id ASC
         ", [$fecha1, $fecha2, $estado]);
 
         // Asegurarse de que $reservas no sea null
