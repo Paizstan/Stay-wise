@@ -48,12 +48,17 @@ Route::get('/gestion', function () {
     Route::get('/reporte/vista', [ReporteController::class, 'vistaReporte'])->name('reporte.vista');  // Vista previa en Vue
     Route::get('/reporte/pdf', [ReporteController::class, 'generarPDF'])->name('reporte.pdf'); // Descargar PDF
     Route::get('/reporte/datos', [ReservaController::class, 'getDatos']); // Ensure this route points to ReservaController
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 060edadefc99cd24faadd9c551487c02e102ac94
     
 });
 
 Route::post('api/habitaciones/{habitacion}', [HabitacionController::class, 'update']);
 require __DIR__.'/auth.php';
-=======
+
 }); */
 
 Route::get('/reportes/reservas/rango', function () {
@@ -63,4 +68,10 @@ Route::get('/reportes/reservas/rango', function () {
 Route::get('/reportes/reservas', [PDFController::class, 'getReservas'])
     ->middleware(['auth', 'verified'])->name('reportes.reservas');
 
+<<<<<<< HEAD
 require __DIR__ . '/auth.php';
+=======
+require __DIR__ . '/auth.php';
+
+
+>>>>>>> 060edadefc99cd24faadd9c551487c02e102ac94
