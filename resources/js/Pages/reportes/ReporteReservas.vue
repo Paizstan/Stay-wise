@@ -28,7 +28,7 @@ const generarReporte = () => {
         cargando.value = false;
         fechaInicio.value = "";
         fechaFinal.value = "";
-    }, 1000); // simulacion de tiempo
+    }, 2000); // simulacion de
 };
 </script>
 
