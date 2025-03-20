@@ -166,7 +166,7 @@ public function destroy($id)
 
         // Verificar si la habitación tiene reservas
         if ($habitacion->detalleReservas()->count() > 0) {
-            return response()->json(['error' => 'La habitación tiene reservas y no se puede eliminar.'], 409);
+            return response()->json(['error' => 'No se puede eliminar la habitación, por que tiene registros relacionados.'], 409);
         }
 
         // Eliminar imágenes asociadas

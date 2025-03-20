@@ -8,11 +8,6 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\HabitacionController;
 use App\Http\Controllers\PDFController;
-<<<<<<< HEAD
-=======
-
->>>>>>> 8d60aaf6c50069e932915a4073d71b2e04a5306a
-
 
 /*Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -53,16 +48,14 @@ Route::get('/gestion', function () {
     Route::get('/reporte/vista', [ReporteController::class, 'vistaReporte'])->name('reporte.vista');  // Vista previa en Vue
     Route::get('/reporte/pdf', [ReporteController::class, 'generarPDF'])->name('reporte.pdf'); // Descargar PDF
     Route::get('/reporte/datos', [ReservaController::class, 'getDatos']); // Ensure this route points to ReservaController
-<<<<<<< HEAD
 
-=======
->>>>>>> 8d60aaf6c50069e932915a4073d71b2e04a5306a
+
     
 });
 
 Route::post('api/habitaciones/{habitacion}', [HabitacionController::class, 'update']);
 require __DIR__.'/auth.php';
-=======
+
 }); */
 
 Route::get('/reportes/reservas/rango', function () {
@@ -73,10 +66,5 @@ Route::get('/reportes/reservas', [PDFController::class, 'getReservas'])
     ->middleware(['auth', 'verified'])->name('reportes.reservas');
 
 require __DIR__ . '/auth.php';
-<<<<<<< HEAD
-=======
 
 
-
-
->>>>>>> 8d60aaf6c50069e932915a4073d71b2e04a5306a
