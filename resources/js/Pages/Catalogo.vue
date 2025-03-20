@@ -535,46 +535,46 @@ const cerrarCarrito = () => {
             </Swiper>
 
             
-             <!-- Ofertas y Paquetes -->
-<div class="my-12">
-    <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
-        Ofertas y Paquetes
-    </h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div
-            v-for="oferta in ofertas"
-            :key="oferta.id"
-            class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
-        >
-            <img
-                :src="oferta.imagen"
-                :alt="oferta.nombre"
-                class="w-full h-48 object-cover"
-            />
-            <div class="p-4">
-                <h3 class="text-xl font-semibold text-[#5E3023]">
-                    {{ oferta.nombre }}
-                </h3>
-                <p class="text-[#7D5A50]">
-                    {{ oferta.descripcion }}
-                </p>
-                <p class="text-2xl font-bold text-[#5E3023] mt-2">
-                    ${{ oferta.precio }}/noche
-                </p>
-                <p class="text-sm text-gray-600 mt-1">
-                    Válido del {{ new Date(oferta.fecha_inicio).toLocaleDateString() }} 
-                    al {{ new Date(oferta.fecha_fin).toLocaleDateString() }}
-                </p>
-                <button
-                    @click="reservarHabitacion(oferta)"
-                    class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
-                >
-                    Reservar Ahora
-                </button>
+            <!-- Ofertas y Paquetes -->
+            <div class="my-12">
+                <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
+                    Ofertas y Paquetes
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div
+                        v-for="oferta in ofertas"
+                        :key="oferta.id"
+                        class="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105"
+                    >
+                        <img
+                            :src="oferta.imagen"
+                            :alt="oferta.nombre"
+                            class="w-full h-48 object-cover"
+                        />
+                        <div class="p-4">
+                            <h3 class="text-xl font-semibold text-[#5E3023]">
+                                {{ oferta.nombre }}
+                            </h3>
+                            <p class="text-[#7D5A50]">
+                                {{ oferta.descripcion }}
+                            </p>
+                            <p class="text-2xl font-bold text-[#5E3023] mt-2">
+                                ${{ oferta.precio }}/noche
+                            </p>
+                            <p class="text-sm text-gray-600 mt-1">
+                                Válido del {{ new Date(oferta.fecha_inicio).toLocaleDateString() }} 
+                                al {{ new Date(oferta.fecha_fin).toLocaleDateString() }}
+                            </p>
+                            <button
+                                @click="reservarHabitacion(oferta)"
+                                class="w-full bg-[#7D5A50] text-white py-2 rounded mt-4 hover:bg-[#5E3023]"
+                            >
+                                Reservar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
             <!-- Habitaciones -->
             <div class="my-12" ref="habitacionesSection" id="habitacionesSection">
                 <h2 class="text-3xl font-bold text-[#5E3023] text-center mb-8">
@@ -615,6 +615,9 @@ const cerrarCarrito = () => {
                             </p>
                             <p class="text-2xl font-bold text-[#5E3023] mt-2">
                                 ${{ habitacion.precio }}/noche
+                            </p>
+                            <p class="text-2xl font-bold text-[#5E3023]">
+                                {{ habitacion.tipo }}
                             </p>
                             <button
                                 @click="reservarHabitacion(habitacion)"
