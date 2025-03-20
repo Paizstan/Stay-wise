@@ -284,7 +284,8 @@ const btnTitle = computed(() =>
                                 <Button
                                     label="Nueva Habitacion"
                                     icon="pi pi-plus"
-                                    class="mr-2"
+                                    style="background-color: #E6D5BE !important; border-color: #E6D5BE !important; color: #5E3023 !important;"
+                                    class="mr-2  hover:bg-[#D2B48C] hover:border-[#D2B48C] hover:text-white"
                                     @click="openNew"
                                 />
                             </template>
@@ -493,6 +494,11 @@ const btnTitle = computed(() =>
                                     multiple
                                     @select="onImageSelect"
                                     choose-label="Seleccionar Imágenes"
+                                    class="p-button"
+                                    :chooseButtonProps="{
+                                        style: 'background-color: #E6D5BE !important; border-color: #E6D5BE !important; color: #5E3023 !important;',
+                                        class: 'hover:bg-[#D2B48C] hover:border-[#D2B48C] hover:text-white'
+                                    }"
                                 />
                             </div>
                             <!--Vista previa de las imagenes-->
@@ -524,11 +530,15 @@ const btnTitle = computed(() =>
                                 icon="pi pi-times"
                                 text
                                 @click="hideDialog"
+                                style="background-color: #E6D5BE !important; border-color: #E6D5BE !important; color: #5E3023 !important;"
+                                class="hover:bg-[#D2B48C] hover:border-[#D2B48C] hover:text-white"
                             />
                             <Button
                                 :label="btnTitle"
                                 icon="pi pi-check"
                                 @click="saveOrUpdate"
+                                style="background-color: #E6D5BE !important; border-color: #E6D5BE !important; color: #5E3023 !important;"
+                                class="hover:bg-[#D2B48C] hover:border-[#D2B48C] hover:text-white"
                             />
                         </template>
                     </Dialog>
